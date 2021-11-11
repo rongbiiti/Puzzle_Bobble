@@ -72,6 +72,11 @@ public class Bobble : MonoBehaviour
     
     void Update()
     {
+        // 泡がまだゲームオーバーゾーンに達していなければ、じわじわと落ちていく
+        if (!GameManager.Instance.isBobbleFalloutGameOverZone)
+        {
+            transform.Translate(-transform.up * 0.001f);
+        }
         
     }
 

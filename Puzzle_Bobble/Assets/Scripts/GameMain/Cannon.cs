@@ -30,6 +30,8 @@ public class Cannon : MonoBehaviour
     [SerializeField] private float _maxAngleDelta = 170f;
 
     private GameObject haveBobble;      // 大砲にセットされている玉
+    private bool shotFlg;               // 発射可能フラグ
+    private Vector3 shotDirection;      // 玉を発射する方向
 
     private GUIStyle style; // OnGUIでデバッグ表示用
     private Vector3 pos;    // OnGUIでデバッグ表示用
@@ -51,7 +53,7 @@ public class Cannon : MonoBehaviour
         _guideCircle.SetActiveGuideCircle(false);
 
         // 発射する玉を生成
-        haveBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
+        Reload();
 
         // デバッグ用
         style = new GUIStyle();
@@ -133,17 +135,14 @@ public class Cannon : MonoBehaviour
     {
         _guideCircle.SetActiveGuideCircle(false);   // 発射ガイド非表示
 
-        touchPosition.z = transform.position.z;     // Z座標を揃える
-        Vector3 dir = (touchPosition - transform.position).normalized;       // ベクトルから方向情報を取り出す
-
         // 玉を持っているときだけ発射処理
-        if (haveBobble)
+        if (haveBobble && shotFlg)
         {
-            haveBobble.AddComponent<BobbleMove>().ShotBubble(_bobbleMoveSpeed, dir);    // 玉を発射
+            haveBobble.AddComponent<BobbleMove>().ShotBubble(_bobbleMoveSpeed, shotDirection);    // 玉を発射
+            haveBobble = null;
+            GameManager.Instance.shootedBobbleMoving = true;
             StartCoroutine(nameof(ReloadBobble));
-        }
-        
-        haveBobble = null;
+        }        
 
         // 以下デバッグ用
         pos = touchPosition;
@@ -163,9 +162,21 @@ public class Cannon : MonoBehaviour
         // 0度から180度だった場合のみ回転
         // 負の値（-1度 ～ -180度）、つまり水平より下を向くことになるなら回転させない
         // さらに、インスペクターで指定した最小角度と最大角度の範囲内で回転させる
-        if(0 <= angle && _minAngleDelta <= angle && angle <= _maxAngleDelta)
+        if (0 <= angle && _minAngleDelta <= angle && angle <= _maxAngleDelta)
         {
             transform.rotation = Quaternion.Euler(0, 0, angle);         // その方向に大砲を向ける
+            shotDirection = dir;            // 発射する方向をセット
+            shotFlg = true;
+        }
+        else if (0 <= angle && angle <= 180)
+        {
+            // 方向が最小角度と最大角度でなくても、水平以上なら発射方向は上書きせずに発射可能にする
+            shotFlg = true;
+        }
+        else
+        {
+            // 発射禁止
+            shotFlg = false;
         }
 
         // 以下デバッグ用
@@ -180,6 +191,7 @@ public class Cannon : MonoBehaviour
     {
         haveBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
         haveBobble.GetComponent<Bobble>().BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow);
+        haveBobble.GetComponent<Bobble>().enabled = false;
     }
 
     /// <summary>
@@ -188,7 +200,11 @@ public class Cannon : MonoBehaviour
     /// <returns></returns>
     private IEnumerator ReloadBobble()
     {
-        yield return new WaitForSeconds(0.5f);
+        while (GameManager.Instance.shootedBobbleMoving)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+        
         Reload();
     }
 
