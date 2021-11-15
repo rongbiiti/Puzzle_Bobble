@@ -8,12 +8,14 @@ public class BobbleMove : MonoBehaviour
     [HideInInspector] public Vector3 moveDirection;   // 玉の進行方向
     private Vector3 prePosition;                      // 前フレームでの位置
     private bool moveFlg;           // これがtrueのときに移動処理をさせる
+    private bool hitFlg;            // これがfalseのときだけヒット後の処理
     private float bobbleHeightSize = 0.56f;           // 泡１個の縦幅
     private float bobbleWidthSize = 0.56f;            // 泡１個の横幅
+    private Bobble myBobble;
 
     void Start()
     {
-        
+        myBobble = GetComponent<Bobble>();
     }
 
     void Update()
@@ -48,6 +50,10 @@ public class BobbleMove : MonoBehaviour
         }
         else
         {
+            // １フレームで２回処理させないように
+            if (hitFlg) return;
+            hitFlg = true;
+
             float newX = 0;
 
             // 泡の左右どちら側に当たったか見て、X座標を泡の横幅の半分のサイズ分ずらす
@@ -82,10 +88,22 @@ public class BobbleMove : MonoBehaviour
                 newX *= 2;
             }
 
+            // 当たった泡のBobbleスクリプトを取得
+            Bobble hitBobble = collision.gameObject.GetComponent<Bobble>();
+            int hitX = hitBobble.GetNumber().x;
+            int hitY = hitBobble.GetNumber().y;
+
+            Debug.Log("X : " + hitX + " Y : " + hitY);
+
+            BobbleArrayManager.Instance.BobbleDeleteCheck(hitX, hitY, myBobble.BobbleColor);
+
+            // 玉を、ヒットした泡の位置とヒットした方向をもとに修正して、互い違いの位置に設置
             Vector3 newPosition = new Vector3(collision.transform.position.x + newX, collision.transform.position.y + newY);
             transform.position = newPosition;
+
+            // 固定したあと、ほかの泡と同様にじわじわ下に落ちるようにする
             GameManager.Instance.shootedBobbleMoving = false;
-            GetComponent<Bobble>().enabled = true;  // 固定したあと、ほかの泡と同様にじわじわ下に落ちるようにする
+            myBobble.enabled = true;  
 
             // 停止させる
             Destroy(GetComponent<BobbleMove>());

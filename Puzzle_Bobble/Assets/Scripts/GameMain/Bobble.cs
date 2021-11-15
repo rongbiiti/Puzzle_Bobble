@@ -9,12 +9,19 @@ using UnityEditor;
 /// </summary>
 public enum BobbleColor
 {
+    None = -1,
     Blue,
     Gray,
     Green,
     Purple,
     Red,
     Yellow
+}
+
+// 泡の行と列番号が入った構造体
+public struct BobbleNumber
+{
+    public int x, y;
 }
 
 public class Bobble : MonoBehaviour
@@ -32,6 +39,8 @@ public class Bobble : MonoBehaviour
         set { _bobbleColor = value;
             sprRenderer.sprite = _bobbleSprites._sprite[(int)_bobbleColor];
         }
+
+        get { return _bobbleColor; }
     }
 
     /// <summary>
@@ -52,6 +61,8 @@ public class Bobble : MonoBehaviour
     [SerializeField] BobbleSprite _bobbleSprites;
 
     private SpriteRenderer sprRenderer;      // 自身にアタッチされているSpriteRendererコンポーネント
+
+    BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
     private void Awake()
     {
@@ -78,6 +89,22 @@ public class Bobble : MonoBehaviour
             transform.Translate(-transform.up * 0.001f);
         }
         
+    }
+
+    /// <summary>
+    /// 行と列番号を設定
+    /// </summary>
+    /// <param name="row">行</param>
+    /// <param name="col">列</param>
+    public void SetNumber(int row, int col)
+    {
+        bobbleNumber.x = row;
+        bobbleNumber.y = col;
+    }
+
+    public BobbleNumber GetNumber()
+    {
+        return bobbleNumber;
     }
 
     /// <summary>
