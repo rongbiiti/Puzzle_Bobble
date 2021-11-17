@@ -15,10 +15,14 @@ public enum BobbleColor
     Green,
     Purple,
     Red,
-    Yellow
+    Yellow,
+    Max,
+
+    Delete = 99
 }
 
 // 泡の行と列番号が入った構造体
+[Serializable]
 public struct BobbleNumber
 {
     public int x, y;
@@ -62,7 +66,7 @@ public class Bobble : MonoBehaviour
 
     private SpriteRenderer sprRenderer;      // 自身にアタッチされているSpriteRendererコンポーネント
 
-    BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
+    public BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
     private void Awake()
     {
@@ -89,6 +93,11 @@ public class Bobble : MonoBehaviour
             transform.Translate(-transform.up * 0.001f);
         }
         
+        if(transform.position.y <= -3.06f)
+        {
+            GameManager.Instance.isBobbleFalloutGameOverZone = true;
+            Debug.Log(gameObject.name);
+        }
     }
 
     /// <summary>

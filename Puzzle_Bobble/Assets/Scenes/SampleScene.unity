@@ -1931,8 +1931,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bobbleGroupPrefab:
-  - {fileID: 5937935874393038246, guid: 8582cb4598b801b4ca55cc542d7ffe7f, type: 3}
-  - {fileID: 7313663690157600230, guid: 1880641d15e0cc44a970bad31602c154, type: 3}
+  - {fileID: 5349676282821972941, guid: 002dbf393613eaa4b9ae0c2e8254a59b, type: 3}
+  - {fileID: 109910020698084043, guid: 126e12c0745848244913f4741f848e8d, type: 3}
+  BOBBLE_ROW_MAX: 25
+  BOBBLE_EVEN_SIZE: 10
+  _onStartCreateBobbleRow: 15
 --- !u!4 &1771490403
 Transform:
   m_ObjectHideFlags: 0

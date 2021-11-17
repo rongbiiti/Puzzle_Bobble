@@ -190,7 +190,7 @@ public class Cannon : MonoBehaviour
     private void Reload()
     {
         haveBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
-        haveBobble.GetComponent<Bobble>().BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Gray + 1);
+        haveBobble.GetComponent<Bobble>().BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
         haveBobble.GetComponent<Bobble>().enabled = false;
     }
 
