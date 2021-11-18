@@ -62,6 +62,8 @@ public class Cannon : MonoBehaviour
 
     void Update()
     {
+        if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
+
         if (Application.isEditor)
         {
             // エディタで実行中

@@ -1933,9 +1933,9 @@ MonoBehaviour:
   _bobbleGroupPrefab:
   - {fileID: 5349676282821972941, guid: 002dbf393613eaa4b9ae0c2e8254a59b, type: 3}
   - {fileID: 109910020698084043, guid: 126e12c0745848244913f4741f848e8d, type: 3}
-  BOBBLE_ROW_MAX: 25
+  BOBBLE_ROW_MAX: 27
   BOBBLE_EVEN_SIZE: 10
-  _onStartCreateBobbleRow: 15
+  _onStartCreateBobbleRow: 23
 --- !u!4 &1771490403
 Transform:
   m_ObjectHideFlags: 0

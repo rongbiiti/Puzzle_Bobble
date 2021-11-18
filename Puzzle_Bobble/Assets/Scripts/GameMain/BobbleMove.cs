@@ -129,7 +129,7 @@ public class BobbleMove : MonoBehaviour
 
             transform.parent = BobbleArrayManager.Instance.GetSameRowBobbleGroup(newIX, newIY, myBobble.BobbleColor, myBobble);
 
-            BobbleArrayManager.Instance.BobbleDeleteCheck(hitX, hitY, myBobble.BobbleColor);
+            BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble.BobbleColor);
 
             // í‚é~Ç≥ÇπÇÈ
             Destroy(GetComponent<BobbleMove>());

@@ -23,12 +23,24 @@ public class BobbleGroup : MonoBehaviour
         //CreateChiledBobbles();
 
         // オブジェクトの名前に行番号を追加する
-        gameObject.name = rowNum + gameObject.name + rowNum;
+        gameObject.name = rowNum + "Row";
     }
     
     void Update()
     {
         
+    }
+
+    public void ChangeRowNum(int newRowNum)
+    {
+        rowNum = newRowNum;
+        gameObject.name = rowNum + "Row";
+
+        foreach (var b in bobbles)
+        {
+            if (b == null) continue;
+            b.SetNumber(b.bobbleNumber.x, newRowNum);
+        }
     }
 
     public void ClearBobbleColors()
@@ -109,15 +121,17 @@ public class BobbleGroup : MonoBehaviour
     public void DestroyChildBobble(int x)
     {
         Destroy(bobbles[x].gameObject);     // オブジェクト破壊
-        bobbles[x] = null;                  // 配列の中もnullにする
+        //bobbles.Insert(x, null);             // 配列の中もnullにする
+        bobbles[x] = null;
         bobbleColors[x] = BobbleColor.None; // 色を記憶してる配列の中もNoneに変える
+        //bobbleColors.Insert(x, BobbleColor.None);
         childBobbleCount--;
 
         // 子要素の泡がすべて消えたら親であるこのオブジェクトも削除...
         if(childBobbleCount <= 0)
         {
             //Destroy(gameObject);
-            Debug.Log(gameObject.name + "が子がいなくなったので削除された");
+            //Debug.Log(gameObject.name + "が子がいなくなったので削除された");
         }
     }
 }

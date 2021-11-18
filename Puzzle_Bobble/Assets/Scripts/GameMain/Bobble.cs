@@ -18,7 +18,8 @@ public enum BobbleColor
     Yellow,
     Max,
 
-    Delete = 99
+    Delete = 99,
+    NotConnectedCeil = 100
 }
 
 // –A‚Ìs‚Æ—ñ”Ô†‚ª“ü‚Á‚½\‘¢‘Ì
@@ -82,7 +83,7 @@ public class Bobble : MonoBehaviour
 
     void Start()
     {
-        
+       
     }
     
     void Update()

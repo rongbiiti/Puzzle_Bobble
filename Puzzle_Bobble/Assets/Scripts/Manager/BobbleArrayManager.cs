@@ -14,7 +14,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     /// <summary>
     /// 泡グループの最大数
     /// </summary>
-    public int BOBBLE_ROW_MAX = 25;
+    public int BOBBLE_ROW_MAX = 27;
 
     /// <summary>
     /// 泡の偶数行の個数
@@ -24,7 +24,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     /// <summary>
     /// Start時に泡グループを何行分生成するか
     /// </summary>
-    [SerializeField] private int _onStartCreateBobbleRow = 15;
+    [SerializeField] private int _onStartCreateBobbleRow = 23;
 
     // 泡を格納する配列
     public List<List<BobbleColor>> bobbles = new List<List<BobbleColor>>();
@@ -37,6 +37,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
     private float bobbleCreateStartPosY = 11.08f;        // 一番最初に生成する泡グループのY座標
     private float bobbleCreateIncreaseYPos = 0.56f;      // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
+    private float nextBobbleGroupCreateWaitTime = 9.825405f * 2; // 次の泡グループ生成までの待機時間
+    private float waitTime;
+
 
     void Start()
     {
@@ -53,6 +56,42 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             // 泡グループ生成処理
             CreateBobbleGroupObject(i);
         }
+
+    }
+
+    private void Update()
+    {
+        if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
+
+        waitTime += Time.deltaTime;
+
+        if(nextBobbleGroupCreateWaitTime <= waitTime)
+        {
+            AddNewBobbleGroup();
+            waitTime = 0;
+        }
+    }
+
+
+    private void AddNewBobbleGroup()
+    {
+        foreach (var bg in bobbleGroups)
+        {
+            bg.ChangeRowNum(bg.rowNum + 2);
+        }
+
+        Destroy(bobbleGroups[bobbleGroups.Count - 1].gameObject);
+        Destroy(bobbleGroups[bobbleGroups.Count - 2].gameObject);
+
+        bobbles.RemoveRange(bobbles.Count - 2, 2);
+        bobbleGroups.RemoveRange(bobbleGroups.Count - 2, 2);
+
+        Debug.Log(bobbleGroups.Count);
+
+        CreateBobbleGroupObject(0);
+        CreateBobbleGroupObject(1);
+
+        Debug.Log(bobbleGroups.Count);
 
     }
 
@@ -93,8 +132,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             for (int j = 0; j < BOBBLE_EVEN_SIZE; j++)
             {
                 // 配列に泡の情報を追加
-                bobbles[rowNum] = bobbleGroup.bobbleColors;
-                
+                //bobbles[rowNum] = bobbleGroup.bobbleColors;
+                bobbles[rowNum].Insert(j, bobbleGroup.bobbleColors[j]);
+
             }
 
         }
@@ -103,7 +143,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             // 奇数
             for (int j = 0; j < BOBBLE_EVEN_SIZE - 1; j++)
             {
-                bobbles[rowNum] = bobbleGroup.bobbleColors;
+                //bobbles[rowNum] = bobbleGroup.bobbleColors;
+                bobbles[rowNum].Insert(j, bobbleGroup.bobbleColors[j]);
             }
 
         }
@@ -126,9 +167,20 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         {
             if(g.rowNum == y)
             {
+                // 管理配列の情報を更新
                 g.bobbles[x] = bobbleComponent;
                 g.bobbleColors[x] = color;
-                bobbles[y] = g.bobbleColors;
+                //g.bobbleColors.Insert(x, color);
+                //bobbles[y] = g.bobbleColors;
+                var tmp = g.bobbleColors[x];
+                bobbles[y][x] = tmp;
+
+                //bobbles[y].RemoveAt(x);
+                //bobbles[y].Insert(x, g.bobbleColors[x]);
+                //bobbles.Insert(y, g.bobbleColors);
+
+                Debug.Log(bobbleComponent.name + "は" + g.name + "の子要素になった。 色 : " + color);
+
                 return g.transform;
             }
         }
@@ -159,26 +211,43 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             // 玉と同じ色だったので、繋がっているものをマークしていく。
             FloodFill(x, y, color, ref deleteCount);
 
-            Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+            //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
+            //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
 
             if(3 <= deleteCount)
             {
                 // 3つ以上繋がっていたので、削除作業
                 BobbleDelete(x, y);
+                DeleteNotConnectedCeillingBobbles();
             }
             else
             {
                 // 3つ繋がってなかったので、配列をマーク作業する前の状態に戻す
-                bobbles = workBobbles.DeepCopy();
-                Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+                
+                //Debug.Log("泡は3つ以上繋がっていなかった");
+                //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
+                //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+                //bobbles = workBobbles.DeepCopy();
             }
-            return true;
+            
         }
         else
         {
             Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
             return false;
         }
+
+        if(deleteCount < 3)
+        {
+            Debug.Log("泡は3つ以上繋がっていなかった");
+            //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
+            //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+            bobbles = workBobbles.DeepCopy();
+            //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
+            //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -227,7 +296,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 // 奇数行
                 FloodFill(x - 1, y    , color, ref count);
                 FloodFill(x    , y - 1, color, ref count);
-                FloodFill(x + 1, y + 1, color, ref count);
+                FloodFill(x + 1, y - 1, color, ref count);
 
                 FloodFill(x + 1, y    , color, ref count);
                 FloodFill(x + 1, y + 1, color, ref count);
@@ -255,7 +324,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         {
             bobbleGroups[y].DestroyChildBobble(x);
             bobbles[y][x] = BobbleColor.None;
-            Debug.Log("削除！！");
+            Debug.Log("削除！！ Y : " + y + " X : " + x);
 
             // 再帰処理
             // 偶数行か奇数行かでアクセスする泡の位置を変える
@@ -275,11 +344,104 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 // 奇数行
                 BobbleDelete(x - 1, y    );
                 BobbleDelete(x    , y - 1);
-                BobbleDelete(x + 1, y + 1);
+                BobbleDelete(x + 1, y - 1);
 
                 BobbleDelete(x + 1, y    );
                 BobbleDelete(x + 1, y + 1);
                 BobbleDelete(x    , y + 1);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 天井からフラッドフィルで色があるセルをマークする
+    /// </summary>
+    private void DeleteNotConnectedCeillingBobbles()
+    {
+        // マーク前の状態をコピー
+        workBobbles = bobbles.DeepCopy();
+
+        // 天井の行の泡を開始列としてマークしていく
+        for (int i = 0; i < BOBBLE_EVEN_SIZE; i++)
+        {
+            // 0行i列の泡が色付き（マーク済みかNoneである）でなければ処理スキップ
+            if(bobbles[0][i] <= BobbleColor.None || BobbleColor.Max <= bobbles[0][i])
+            {
+                continue;
+            }
+
+            // 天井と繋がっていたらマーク
+            MarkNotConnectedCeilBobbles(i, 0);
+        }
+
+        // マーク後泡を全てチェックする
+        for( int y = 0; y < BOBBLE_ROW_MAX; y++)
+        {
+            for(int x = 0; x < BOBBLE_EVEN_SIZE - (y % 2); x++)
+            {
+                // 泡が色付きならマークされていない、天井と繋がっていないので削除する
+                if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
+                {
+                    bobbleGroups[y].DestroyChildBobble(x);
+                    bobbles[y][x] = BobbleColor.None;
+                    Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
+                }
+                else
+                {
+                    // マークされていたら、マーク前の状態に戻す
+                    //bobbles[y][x] = workBobbles[y][x];
+                    var tmp = workBobbles[y][x];
+                    bobbles[y][x] = tmp;
+                }
+            }
+        }        
+    }
+
+    /// <summary>
+    /// 天井と繋がっている泡をマークする
+    /// </summary>
+    /// <param name="x">列</param>
+    /// <param name="y">行</param>
+    private void MarkNotConnectedCeilBobbles(int x, int y)
+    {
+        // 左端が右端を超えたらリターン
+        // 奇数列だった場合y % 2の答えが1になるので、互い違いを考慮することができる
+        if ((x < 0) || (x >= BOBBLE_EVEN_SIZE - (y % 2))) return;
+
+        // 天辺か底辺を超えたらリターン
+        if ((y < 0) || (y >= BOBBLE_ROW_MAX)) return;
+
+        if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
+        {
+            // 動作確認用　色を赤にする
+            //bobbleGroups[y].SetChildBobbleColor(x, BobbleColor.Red);
+
+            // 天井とつながっている泡としてマークする
+            bobbles[y][x] = BobbleColor.NotConnectedCeil;
+
+            // 再帰処理
+            // 偶数行か奇数行かでアクセスする泡の位置を変える
+            if (y % 2 == 0)
+            {
+                // 偶数行
+                MarkNotConnectedCeilBobbles(x - 1, y);
+                MarkNotConnectedCeilBobbles(x - 1, y - 1);
+                MarkNotConnectedCeilBobbles(x, y - 1);
+
+                MarkNotConnectedCeilBobbles(x + 1, y);
+                MarkNotConnectedCeilBobbles(x, y + 1);
+                MarkNotConnectedCeilBobbles(x - 1, y + 1);
+            }
+            else
+            {
+                // 奇数行
+                MarkNotConnectedCeilBobbles(x - 1, y);
+                MarkNotConnectedCeilBobbles(x, y - 1);
+                MarkNotConnectedCeilBobbles(x + 1, y - 1);
+
+                MarkNotConnectedCeilBobbles(x + 1, y);
+                MarkNotConnectedCeilBobbles(x + 1, y + 1);
+                MarkNotConnectedCeilBobbles(x, y + 1);
             }
         }
     }
