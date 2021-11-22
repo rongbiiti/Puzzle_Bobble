@@ -29,9 +29,16 @@ public class Cannon : MonoBehaviour
     /// </summary>
     [SerializeField] private float _maxAngleDelta = 170f;
 
+    /// <summary>
+    /// 次に大砲にセットする玉の生成時位置
+    /// </summary>
+    [SerializeField] private Transform _nextBobblePosition;
+
     private GameObject haveBobble;      // 大砲にセットされている玉
     private bool shotFlg;               // 発射可能フラグ
     private Vector3 shotDirection;      // 玉を発射する方向
+
+    private GameObject nextBobble;      // 次に大砲にセットする玉
 
     private GUIStyle style; // OnGUIでデバッグ表示用
     private Vector3 pos;    // OnGUIでデバッグ表示用
@@ -51,6 +58,10 @@ public class Cannon : MonoBehaviour
 
         // 発射ガイドを非表示にしておく
         _guideCircle.SetActiveGuideCircle(false);
+
+        nextBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
+        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+        nextBobble.GetComponent<Bobble>().enabled = false;
 
         // 発射する玉を生成
         Reload();
@@ -191,9 +202,28 @@ public class Cannon : MonoBehaviour
     /// </summary>
     private void Reload()
     {
-        haveBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
-        haveBobble.GetComponent<Bobble>().BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
-        haveBobble.GetComponent<Bobble>().enabled = false;
+        haveBobble = nextBobble;
+        haveBobble.transform.position = transform.position;
+        nextBobble = Instantiate(_bobblePrefab, _nextBobblePosition.position, Quaternion.identity) as GameObject;
+        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+        nextBobble.GetComponent<Bobble>().enabled = false;
+    }
+
+    /// <summary>
+    /// 次に大砲にセットする玉と大砲にセットされている玉を交換
+    /// </summary>
+    public void ShotBobbleChange()
+    {
+        // 位置を入れ替え
+        haveBobble.transform.position = _nextBobblePosition.transform.position;
+        nextBobble.transform.position = transform.position;
+
+        // 玉を入れ替え
+        GameObject tmp = nextBobble;
+        nextBobble = haveBobble;
+        haveBobble = tmp;        
+
+        Debug.Log("おされた");
     }
 
     /// <summary>

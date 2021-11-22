@@ -75,9 +75,9 @@ public class BobbleGroup : MonoBehaviour
             b.SetNumber(i++, rowNum);       // 行と列番号設定
 
             // 泡の色をランダムに変更
-            b.BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+            b._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
 
-            bobbleColors.Add(b.BobbleColor);// 泡の色を取得しておく
+            bobbleColors.Add(b._BobbleColor);// 泡の色を取得しておく
             childBobbleCount++;             // 泡の数を記録
         }
     }
@@ -91,7 +91,7 @@ public class BobbleGroup : MonoBehaviour
     {
         if (bobbles[x] != null)
         {
-            return bobbles[x].BobbleColor;
+            return bobbles[x]._BobbleColor;
         }
         else
         {
@@ -110,7 +110,7 @@ public class BobbleGroup : MonoBehaviour
         // 正しく設定できる色の範囲外が指定されたら処理をスキップ
         if (color <= BobbleColor.None || BobbleColor.Max <= color) return;
 
-        bobbles[x].BobbleColor = color;
+        bobbles[x]._BobbleColor = color;
         bobbleColors[x] = color;
     }
 

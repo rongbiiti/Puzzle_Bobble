@@ -56,13 +56,13 @@ public class BobbleMove : MonoBehaviour
 
             // 当たった泡のBobbleスクリプトを取得
             Bobble hitBobble = collision.gameObject.GetComponent<Bobble>();
-            int hitX = hitBobble.GetNumber().x;
-            int hitY = hitBobble.GetNumber().y;
+            int hitIX = hitBobble.GetNumber().x;
+            int hitIY = hitBobble.GetNumber().y;
 
-            Debug.Log("X : " + hitX + " Y : " + hitY);
+            Debug.Log("X : " + hitIX + " Y : " + hitIY);
 
             float newY = 0;
-            int newIY = hitY;
+            int newIY = hitIY;
 
             // 泡の上下真ん中どれに当たったか見て、Y座標を泡の縦幅分ずらす
             if(collision.transform.position.y + bobbleHeightSize / 2 <= transform.position.y)
@@ -79,7 +79,7 @@ public class BobbleMove : MonoBehaviour
             }
 
             float newX = 0;
-            int newIX = hitX;
+            int newIX = hitIX;
 
             // 泡の左右どちら側に当たったか見て、X座標を泡の横幅の半分のサイズ分ずらす
             if (transform.position.x <= collision.transform.position.x)
@@ -88,9 +88,16 @@ public class BobbleMove : MonoBehaviour
                 newX = -bobbleWidthSize / 2;
 
                 // ヒットした泡が偶数行か、同じ行なら左にずれる
-                if (hitY % 2 == 0 || hitY == newIY)
+                if (hitIY % 2 == 0 || hitIY == newIY)
                 {
                     newIX--;
+                }
+
+                // 固定されたインデックスが0未満になってたら0になるよう修正する
+                if(newIX < 0)
+                {
+                    newIX = 0;
+                    newX += bobbleWidthSize;
                 }
 
             }
@@ -100,21 +107,26 @@ public class BobbleMove : MonoBehaviour
                 newX = bobbleWidthSize / 2;
 
                 // ヒットした泡が奇数行か、同じ行なら右にずれる
-                if (hitY % 2 == 1 || hitY == newIY)
+                if (hitIY % 2 == 1 || hitIY == newIY)
                 {
                     newIX++;
+                }
+
+                // 固定されたインデックスが配列の要素数を越えてたら要素数に収まるよう修正する
+                if (BobbleArrayManager.Instance.BOBBLE_EVEN_SIZE - (newIY % 2) <= newIX)
+                {
+                    newIX = BobbleArrayManager.Instance.BOBBLE_EVEN_SIZE - 1 - (newIY % 2);
+                    newX -= bobbleWidthSize;
                 }
 
             }
 
             // 泡と同じ行だった場合
-            if(hitY == newIY)
+            if(hitIY == newIY)
             {
                 // ワールドX座標をさらにずらす
                 newX *= 2;
-            }
-
-            
+            }            
 
             // 玉を、ヒットした泡の位置とヒットした方向をもとに修正して、互い違いの位置に設置
             Vector3 newPosition = new Vector3(collision.transform.position.x + newX, collision.transform.position.y + newY);
@@ -127,9 +139,9 @@ public class BobbleMove : MonoBehaviour
             myBobble.bobbleNumber.x = newIX;
             myBobble.bobbleNumber.y = newIY;
 
-            transform.parent = BobbleArrayManager.Instance.GetSameRowBobbleGroup(newIX, newIY, myBobble.BobbleColor, myBobble);
+            transform.parent = BobbleArrayManager.Instance.GetSameRowBobbleGroup(newIX, newIY, myBobble._BobbleColor, myBobble);
 
-            BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble.BobbleColor);
+            BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble._BobbleColor);
 
             // 停止させる
             Destroy(GetComponent<BobbleMove>());

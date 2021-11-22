@@ -40,9 +40,10 @@ public class Bobble : MonoBehaviour
     /// <summary>
     /// 他オブジェクトから色を変更させる
     /// </summary>
-    public BobbleColor BobbleColor {
+    public BobbleColor _BobbleColor {
         set { _bobbleColor = value;
             sprRenderer.sprite = _bobbleSprites._sprite[(int)_bobbleColor];
+            gameObject.name = _bobbleColor.ToString();
         }
 
         get { return _bobbleColor; }
@@ -92,13 +93,14 @@ public class Bobble : MonoBehaviour
         if (!GameManager.Instance.isBobbleFalloutGameOverZone)
         {
             transform.Translate(-transform.up * 0.001f);
+
+            if (transform.position.y <= -3.06f)
+            {
+                GameManager.Instance.isBobbleFalloutGameOverZone = true;
+                Debug.Log(gameObject.name);
+            }
         }
         
-        if(transform.position.y <= -3.06f)
-        {
-            GameManager.Instance.isBobbleFalloutGameOverZone = true;
-            Debug.Log(gameObject.name);
-        }
     }
 
     /// <summary>
@@ -124,6 +126,7 @@ public class Bobble : MonoBehaviour
     private void ColorChange(BobbleColor color)
     {
         sprRenderer.sprite = _bobbleSprites._sprite[(int)color];
+        gameObject.name = _bobbleColor.ToString();
     }
 
 }

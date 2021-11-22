@@ -14,7 +14,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     /// <summary>
     /// 泡グループの最大数
     /// </summary>
-    public int BOBBLE_ROW_MAX = 27;
+    public static int BOBBLE_ROW_MAX = 27;
 
     /// <summary>
     /// 泡の偶数行の個数
@@ -83,15 +83,29 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         Destroy(bobbleGroups[bobbleGroups.Count - 1].gameObject);
         Destroy(bobbleGroups[bobbleGroups.Count - 2].gameObject);
 
-        bobbles.RemoveRange(bobbles.Count - 2, 2);
-        bobbleGroups.RemoveRange(bobbleGroups.Count - 2, 2);
+        //bobbles.RemoveRange(bobbles.Count - 2, 2);
 
-        Debug.Log(bobbleGroups.Count);
+        bobbles.RemoveAt(bobbles.Count - 1);
+        bobbles.RemoveAt(bobbles.Count - 1);
 
-        CreateBobbleGroupObject(0);
+        bobbleGroups.RemoveAt(bobbleGroups.Count - 1);
+        bobbleGroups.RemoveAt(bobbleGroups.Count - 1);
+        //bobbleGroups.RemoveRange(bobbleGroups.Count - 2, 2);
+
+        bobbles.Insert(0, new List<BobbleColor>());
+        bobbles.Insert(0, new List<BobbleColor>());
+
         CreateBobbleGroupObject(1);
+        CreateBobbleGroupObject(0);
 
-        Debug.Log(bobbleGroups.Count);
+        int y = 0;
+        foreach(var b in bobbles)
+        {
+            Debug.Log(y++ + string.Join(", ", b.Select(obj => obj.ToString())));
+        }
+
+        Debug.Log("bobblesの数 : " + y);
+        Debug.Log("bobbleGroupsの数 : " + bobbleGroups.Count);
 
     }
 
@@ -125,6 +139,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // オブジェクトをListに追加
         bobbleGroups.Insert(0, bobbleG.GetComponent<BobbleGroup>());
 
+        //bobbles[rowNum].Clear();
+
         // 偶数と奇数でサイズが違うので分ける
         if (rowNum % 2 == 0)
         {
@@ -149,6 +165,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         }
 
+        //bobbles.Insert(rowNum, bobbleGroup.bobbleColors);
+
         // 作業用配列に記録しておく
         //workBobbles = bobbles;
         Debug.Log(string.Join(", ", bobbles[rowNum].Select(obj => obj.ToString())));
@@ -172,7 +190,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 g.bobbleColors[x] = color;
                 //g.bobbleColors.Insert(x, color);
                 //bobbles[y] = g.bobbleColors;
-                var tmp = g.bobbleColors[x];
+                BobbleColor tmp = g.bobbleColors[x];
                 bobbles[y][x] = tmp;
 
                 //bobbles[y].RemoveAt(x);
@@ -203,6 +221,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 3つ以上繋がってなかったときにマークをリセットできるように、配列を保存しておく
         workBobbles = bobbles.DeepCopy();
 
+        Debug.Log(string.Join(", ", bobbles[y - 1].Select(obj => obj.ToString())));
+
         // 発射した玉とヒットした泡の色が同じか
         if (bobbles[y][x] == color)
         {
@@ -212,7 +232,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             FloodFill(x, y, color, ref deleteCount);
 
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
-            //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+            
 
             if(3 <= deleteCount)
             {
@@ -265,7 +285,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if ((x < 0) || (x >= BOBBLE_EVEN_SIZE - (y % 2))) return;
 
         // 天辺か底辺を超えたらリターン
-        if ((y < 0) || (y >= BOBBLE_ROW_MAX)) return;
+        if ((y < 0) || (y > BOBBLE_ROW_MAX)) return;
 
         if(bobbles[y][x] == color)
         {
@@ -390,7 +410,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 {
                     // マークされていたら、マーク前の状態に戻す
                     //bobbles[y][x] = workBobbles[y][x];
-                    var tmp = workBobbles[y][x];
+                    BobbleColor tmp = workBobbles[y][x];
                     bobbles[y][x] = tmp;
                 }
             }
@@ -409,7 +429,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if ((x < 0) || (x >= BOBBLE_EVEN_SIZE - (y % 2))) return;
 
         // 天辺か底辺を超えたらリターン
-        if ((y < 0) || (y >= BOBBLE_ROW_MAX)) return;
+        if ((y < 0) || (y > BOBBLE_ROW_MAX)) return;
 
         if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
         {
