@@ -9,7 +9,7 @@ public class BobbleMove : MonoBehaviour
     private Vector3 prePosition;                      // ‘OƒtƒŒ[ƒ€‚Å‚ÌˆÊ’u
     private bool moveFlg;           // ‚±‚ê‚ªtrue‚Ì‚Æ‚«‚ÉˆÚ“®ˆ—‚ğ‚³‚¹‚é
     private bool hitFlg;            // ‚±‚ê‚ªfalse‚Ì‚Æ‚«‚¾‚¯ƒqƒbƒgŒã‚Ìˆ—
-    private float bobbleHeightSize = 0.56f;           // –A‚PŒÂ‚Ìc•
+    private float bobbleHeightSize = 0.52f;           // –A‚PŒÂ‚Ìc•
     private float bobbleWidthSize = 0.56f;            // –A‚PŒÂ‚Ì‰¡•
     private Bobble myBobble;
 

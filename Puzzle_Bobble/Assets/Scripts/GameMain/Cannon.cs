@@ -60,7 +60,7 @@ public class Cannon : MonoBehaviour
         _guideCircle.SetActiveGuideCircle(false);
 
         nextBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
-        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
         nextBobble.GetComponent<Bobble>().enabled = false;
 
         // î≠éÀÇ∑ÇÈã Çê∂ê¨
@@ -73,7 +73,7 @@ public class Cannon : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
+        if (GameManager.Instance.isBobbleFalloutGameOverZone || GameManager.Instance.isBobbleDeleting) return;
 
         if (Application.isEditor)
         {
@@ -205,7 +205,7 @@ public class Cannon : MonoBehaviour
         haveBobble = nextBobble;
         haveBobble.transform.position = transform.position;
         nextBobble = Instantiate(_bobblePrefab, _nextBobblePosition.position, Quaternion.identity) as GameObject;
-        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
         nextBobble.GetComponent<Bobble>().enabled = false;
     }
 
@@ -242,10 +242,10 @@ public class Cannon : MonoBehaviour
 
     private void OnGUI()
     {
-        var sw = Screen.width;
-        var sh = Screen.height;
+        //var sw = Screen.width;
+        //var sh = Screen.height;
 
-        GUI.Label(new Rect(50, sh - 80, 500, 500), "ç¿ïW : " + pos + " " + dbgStr + " " + dbgTouchCount, style);
+        //GUI.Label(new Rect(50, sh - 80, 500, 500), "ç¿ïW : " + pos + " " + dbgStr + " " + dbgTouchCount, style);
     }
 
 }

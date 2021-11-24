@@ -75,7 +75,7 @@ public class BobbleGroup : MonoBehaviour
             b.SetNumber(i++, rowNum);       // 行と列番号設定
 
             // 泡の色をランダムに変更
-            b._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Purple + 1);
+            b._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
 
             bobbleColors.Add(b._BobbleColor);// 泡の色を取得しておく
             childBobbleCount++;             // 泡の数を記録
@@ -120,18 +120,14 @@ public class BobbleGroup : MonoBehaviour
     /// <param name="x"></param>
     public void DestroyChildBobble(int x)
     {
-        Destroy(bobbles[x].gameObject);     // オブジェクト破壊
+        //Destroy(bobbles[x].gameObject);     // オブジェクト破壊
+        bobbles[x].BobbleDestroy();
         //bobbles.Insert(x, null);             // 配列の中もnullにする
         bobbles[x] = null;
         bobbleColors[x] = BobbleColor.None; // 色を記憶してる配列の中もNoneに変える
         //bobbleColors.Insert(x, BobbleColor.None);
         childBobbleCount--;
 
-        // 子要素の泡がすべて消えたら親であるこのオブジェクトも削除...
-        if(childBobbleCount <= 0)
-        {
-            //Destroy(gameObject);
-            //Debug.Log(gameObject.name + "が子がいなくなったので削除された");
-        }
+        
     }
 }

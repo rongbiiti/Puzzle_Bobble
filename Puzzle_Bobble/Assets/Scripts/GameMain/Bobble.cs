@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.UI;
 
 /// <summary>
 /// 泡の色
@@ -11,11 +12,11 @@ public enum BobbleColor
 {
     None = -1,
     Blue,
-    Gray,
-    Green,
-    Purple,
     Red,
+    Green,
     Yellow,
+    Purple,
+    Gray,
     Max,
 
     Delete = 99,
@@ -32,6 +33,11 @@ public struct BobbleNumber
 public class Bobble : MonoBehaviour
 {
     /// <summary>
+    /// ポイントUIプレハブ
+    /// </summary>
+    [SerializeField] private GameObject _pointTextUIPrefab;
+
+    /// <summary>
     /// 泡の色
     /// </summary>
     [SerializeField]
@@ -42,8 +48,7 @@ public class Bobble : MonoBehaviour
     /// </summary>
     public BobbleColor _BobbleColor {
         set { _bobbleColor = value;
-            sprRenderer.sprite = _bobbleSprites._sprite[(int)_bobbleColor];
-            gameObject.name = _bobbleColor.ToString();
+            ColorChange(_BobbleColor);
         }
 
         get { return _bobbleColor; }
@@ -61,18 +66,22 @@ public class Bobble : MonoBehaviour
     [Serializable]
     private class BobbleSprite
     {
-        [SerializeField] public Sprite[] _sprite;   // Assetのスプライト指定
-        
+        [SerializeField] public Texture[] _idleTexture;   // 通常アニメ用テクスチャ指定
+        [SerializeField] public Texture[] _deleteTexture;   // 消滅アニメ用テクスチャ
     }
     [SerializeField] BobbleSprite _bobbleSprites;
 
     private SpriteRenderer sprRenderer;      // 自身にアタッチされているSpriteRendererコンポーネント
+    private OverrideSprite overrideSprite;   // OverrideSpriteコンポーネント
+    private Animator animator;
 
     public BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
     private void Awake()
     {
         sprRenderer = GetComponent<SpriteRenderer>();       // SpriteRenderer取得
+        overrideSprite = GetComponent<OverrideSprite>();    // OverrideSprite取得
+        animator = GetComponent<Animator>();                // Animator取得
 
         // inspectorで指定した_bobbleColorに対応するスプライトに変更する
         if (_onAwakeColorChange)
@@ -84,13 +93,13 @@ public class Bobble : MonoBehaviour
 
     void Start()
     {
-       
+
     }
     
     void Update()
     {
         // 泡がまだゲームオーバーゾーンに達していなければ、じわじわと落ちていく
-        if (!GameManager.Instance.isBobbleFalloutGameOverZone)
+        if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting)
         {
             transform.Translate(-transform.up * 0.001f);
 
@@ -125,8 +134,33 @@ public class Bobble : MonoBehaviour
     /// <param name="color">色</param>
     private void ColorChange(BobbleColor color)
     {
-        sprRenderer.sprite = _bobbleSprites._sprite[(int)color];
-        gameObject.name = _bobbleColor.ToString();
+        overrideSprite.overrideTexture = _bobbleSprites._idleTexture[(int)color];
+        gameObject.name = color.ToString();
+    }
+
+    /// <summary>
+    /// 破壊処理
+    /// </summary>
+    public void BobbleDestroy()
+    {
+        StartCoroutine(nameof(SelfDestroyProcess));
+    }
+
+    // 破壊処理コルーチン
+    private IEnumerator SelfDestroyProcess()
+    {
+        Vector3 scrennPos = Camera.main.WorldToScreenPoint(transform.position);
+
+        GameObject text = Instantiate(_pointTextUIPrefab, scrennPos, Quaternion.identity) as GameObject;
+        text.GetComponent<Text>().text = ScoreManager.Instance.NowDeletePoint.ToString();
+        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);
+
+        animator.SetBool("Delete", true);
+        overrideSprite.overrideTexture = _bobbleSprites._deleteTexture[(int)_bobbleColor];
+        yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
+
+        Destroy(gameObject);
+        //Destroy(text);
     }
 
 }

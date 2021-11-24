@@ -13,6 +13,8 @@ GameObject:
   - component: {fileID: 1363490203168981206}
   - component: {fileID: 4629631349641371411}
   - component: {fileID: 8464348928625737380}
+  - component: {fileID: 127820860103003886}
+  - component: {fileID: 2307695239323031893}
   m_Layer: 0
   m_Name: Bobble
   m_TagString: Bobble
@@ -97,16 +99,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d767d421f45ecc74c8745eb8f6fda376, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _pointTextUIPrefab: {fileID: 2048118150054944409, guid: 53f3f430a09df4940a52cf1cbbfa03ad, type: 3}
   _bobbleColor: 0
   _onAwakeColorChange: 0
   _bobbleSprites:
-    _sprite:
-    - {fileID: 21300000, guid: 216286394a13d9249b8352d3611e406b, type: 3}
-    - {fileID: 21300000, guid: f337f38dac198f24b978a5c73c6ab51e, type: 3}
-    - {fileID: 21300000, guid: cb84627254e8c48488c611810a4a737e, type: 3}
-    - {fileID: 21300000, guid: e03d659b35e6dfb4e9adf6b453283714, type: 3}
-    - {fileID: 21300000, guid: a3b88f00d06c9084aa96a9480c6e27c9, type: 3}
-    - {fileID: 21300000, guid: 38a23e5b6e840a6459149dcbf5958aaa, type: 3}
+    _idleTexture:
+    - {fileID: 2800000, guid: 088ea085557971043b31d4b278862980, type: 3}
+    - {fileID: 2800000, guid: 0be69473caefba341b10c5b229b1e6d5, type: 3}
+    - {fileID: 2800000, guid: e2139eb92d6c07f4c921c753ea852a9a, type: 3}
+    - {fileID: 2800000, guid: 7e88bead4fa59214abc489b25d902cd8, type: 3}
+    - {fileID: 2800000, guid: 3fd3bba55a8430a42a677bd04f338608, type: 3}
+    - {fileID: 2800000, guid: baf9894cb00908549a3b2673e7d5d437, type: 3}
+    _deleteTexture:
+    - {fileID: 2800000, guid: 136fdd35449603f40856be1e354d4896, type: 3}
+    - {fileID: 2800000, guid: 5ad9e0b8df8de8b40a85cdea03848c4e, type: 3}
+    - {fileID: 2800000, guid: 0a3187cdf143ed549a0e60a050bb1893, type: 3}
+    - {fileID: 2800000, guid: d9addd066c169f340bc0ae8a647cc99c, type: 3}
+    - {fileID: 2800000, guid: 3a5f517c8ef507941b70687aa411f476, type: 3}
+    - {fileID: 2800000, guid: 6d57b9bfc3070c94b9980636e4ef535e, type: 3}
+  bobbleNumber:
+    x: 0
+    y: 0
 --- !u!58 &4629631349641371411
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -144,3 +157,35 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 0
+--- !u!95 &127820860103003886
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184818080623549299}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 269326b26201bdc4dadc41c8a37b6155, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &2307695239323031893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184818080623549299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fe33cd2292dfa44c82687b1d50bce1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  texture: {fileID: 2800000, guid: 088ea085557971043b31d4b278862980, type: 3}

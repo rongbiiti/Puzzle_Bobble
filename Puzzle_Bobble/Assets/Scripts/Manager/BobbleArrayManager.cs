@@ -35,9 +35,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     // 泡グループオブジェクトの配列
     private List<BobbleGroup> bobbleGroups = new List<BobbleGroup>();
 
-    private float bobbleCreateStartPosY = 11.08f;        // 一番最初に生成する泡グループのY座標
-    private float bobbleCreateIncreaseYPos = 0.56f;      // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
-    private float nextBobbleGroupCreateWaitTime = 9.825405f * 2; // 次の泡グループ生成までの待機時間
+    private float bobbleCreateStartPosY = 9.52f;        // 一番最初に生成する泡グループのY座標
+    private float bobbleCreateIncreaseYPos = 0.52f;      // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
+    private float nextBobbleGroupCreateWaitTime = 1060 * 0.0167f; // 次の泡グループ生成までの待機時間
     private float waitTime;
 
 
@@ -61,10 +61,21 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
     private void Update()
     {
+        // ゲームオーバーになってたら処理しない
         if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
 
+        // 泡の削除演出中
+        if (GameManager.Instance.isBobbleDeleting)
+        {
+            
+
+            return;
+        }
+
+        // 泡生成待機時間を加算
         waitTime += Time.deltaTime;
 
+        // 待機時間を越えたら泡を生成
         if(nextBobbleGroupCreateWaitTime <= waitTime)
         {
             AddNewBobbleGroup();
@@ -237,8 +248,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             if(3 <= deleteCount)
             {
                 // 3つ以上繋がっていたので、削除作業
-                BobbleDelete(x, y);
-                DeleteNotConnectedCeillingBobbles();
+                GameManager.Instance.isBobbleDeleting = true;
+                StartCoroutine(BobbleDeleteCoroutine(x, y));
             }
             else
             {
@@ -342,8 +353,10 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // マークされたものなら、削除
         if (bobbles[y][x] == BobbleColor.Delete)
         {
+            ScoreManager.Instance.AddScore(true);
             bobbleGroups[y].DestroyChildBobble(x);
             bobbles[y][x] = BobbleColor.None;
+            
             Debug.Log("削除！！ Y : " + y + " X : " + x);
 
             // 再帰処理
@@ -371,50 +384,6 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 BobbleDelete(x    , y + 1);
             }
         }
-    }
-
-    /// <summary>
-    /// 天井からフラッドフィルで色があるセルをマークする
-    /// </summary>
-    private void DeleteNotConnectedCeillingBobbles()
-    {
-        // マーク前の状態をコピー
-        workBobbles = bobbles.DeepCopy();
-
-        // 天井の行の泡を開始列としてマークしていく
-        for (int i = 0; i < BOBBLE_EVEN_SIZE; i++)
-        {
-            // 0行i列の泡が色付き（マーク済みかNoneである）でなければ処理スキップ
-            if(bobbles[0][i] <= BobbleColor.None || BobbleColor.Max <= bobbles[0][i])
-            {
-                continue;
-            }
-
-            // 天井と繋がっていたらマーク
-            MarkNotConnectedCeilBobbles(i, 0);
-        }
-
-        // マーク後泡を全てチェックする
-        for( int y = 0; y < BOBBLE_ROW_MAX; y++)
-        {
-            for(int x = 0; x < BOBBLE_EVEN_SIZE - (y % 2); x++)
-            {
-                // 泡が色付きならマークされていない、天井と繋がっていないので削除する
-                if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
-                {
-                    bobbleGroups[y].DestroyChildBobble(x);
-                    bobbles[y][x] = BobbleColor.None;
-                    Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
-                }
-                else
-                {
-                    // マークされていたら、マーク前の状態に戻す
-                    //bobbles[y][x] = workBobbles[y][x];
-                    BobbleColor tmp = workBobbles[y][x];
-                    bobbles[y][x] = tmp;
-                }
-            }
-        }        
     }
 
     /// <summary>
@@ -464,5 +433,78 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 MarkNotConnectedCeilBobbles(x, y + 1);
             }
         }
+    }
+
+    /// <summary>
+    /// 天井からフラッドフィルで色があるセルをマークする
+    /// </summary>
+    private void DeleteNotConnectedCeillingBobbles()
+    {
+        // マーク前の状態をコピー
+        workBobbles = bobbles.DeepCopy();
+
+        // 天井の行の泡を開始列としてマークしていく
+        for (int i = 0; i < BOBBLE_EVEN_SIZE; i++)
+        {
+            // 0行i列の泡が色付き（マーク済みかNoneである）でなければ処理スキップ
+            if(bobbles[0][i] <= BobbleColor.None || BobbleColor.Max <= bobbles[0][i])
+            {
+                continue;
+            }
+
+            // 天井と繋がっていたらマーク
+            MarkNotConnectedCeilBobbles(i, 0);
+        }
+
+        // マーク後泡を全てチェックする
+        for( int y = 0; y < BOBBLE_ROW_MAX; y++)
+        {
+            for(int x = 0; x < BOBBLE_EVEN_SIZE - (y % 2); x++)
+            {
+                // 泡が色付きならマークされていない、天井と繋がっていないので削除する
+                if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
+                {
+                    ScoreManager.Instance.AddScore(false);
+                    bobbleGroups[y].DestroyChildBobble(x);
+                    bobbles[y][x] = BobbleColor.None;
+                    
+                    Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
+                }
+                else
+                {
+                    // マークされていたら、マーク前の状態に戻す
+                    //bobbles[y][x] = workBobbles[y][x];
+                    BobbleColor tmp = workBobbles[y][x];
+                    bobbles[y][x] = tmp;
+                }
+            }
+        }        
+    }   
+
+    private IEnumerator BobbleDeleteCoroutine(int x, int y)
+    {
+        // 1f待つ
+        yield return new WaitForEndOfFrame();
+
+        // コンボ数リセット
+        ScoreManager.Instance.Combo = 0;
+
+        // 泡を削除
+        BobbleDelete(x, y);
+
+        // 削除アニメクリップの長さ分待つ
+        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForEndOfFrame();
+
+        // 浮いた泡を削除        
+        DeleteNotConnectedCeillingBobbles();
+
+        // 削除アニメクリップの長さ分待つ
+        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForEndOfFrame();
+
+        // 削除演出中フラグを折る
+        GameManager.Instance.isBobbleDeleting = false;
+
     }
 }
