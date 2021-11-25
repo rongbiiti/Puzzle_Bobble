@@ -118,10 +118,10 @@ public class BobbleGroup : MonoBehaviour
     /// 泡を削除
     /// </summary>
     /// <param name="x"></param>
-    public void DestroyChildBobble(int x)
+    public void DestroyChildBobble(int x, bool isFall)
     {
         //Destroy(bobbles[x].gameObject);     // オブジェクト破壊
-        bobbles[x].BobbleDestroy();
+        bobbles[x].BobbleDestroy(isFall);
         //bobbles.Insert(x, null);             // 配列の中もnullにする
         bobbles[x] = null;
         bobbleColors[x] = BobbleColor.None; // 色を記憶してる配列の中もNoneに変える

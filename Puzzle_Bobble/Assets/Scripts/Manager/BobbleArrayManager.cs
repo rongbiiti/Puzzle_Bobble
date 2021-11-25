@@ -354,7 +354,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if (bobbles[y][x] == BobbleColor.Delete)
         {
             ScoreManager.Instance.AddScore(true);
-            bobbleGroups[y].DestroyChildBobble(x);
+            bobbleGroups[y].DestroyChildBobble(x, false);
             bobbles[y][x] = BobbleColor.None;
             
             Debug.Log("削除！！ Y : " + y + " X : " + x);
@@ -465,7 +465,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
                 {
                     ScoreManager.Instance.AddScore(false);
-                    bobbleGroups[y].DestroyChildBobble(x);
+                    bobbleGroups[y].DestroyChildBobble(x, true);
                     bobbles[y][x] = BobbleColor.None;
                     
                     Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);

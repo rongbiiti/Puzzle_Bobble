@@ -74,6 +74,7 @@ public class Bobble : MonoBehaviour
     private SpriteRenderer sprRenderer;      // 自身にアタッチされているSpriteRendererコンポーネント
     private OverrideSprite overrideSprite;   // OverrideSpriteコンポーネント
     private Animator animator;
+    private bool isDisconnectFall;           // 天井と繋がれなくなり、自然落下状態か
 
     public BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
@@ -99,13 +100,14 @@ public class Bobble : MonoBehaviour
     void Update()
     {
         // 泡がまだゲームオーバーゾーンに達していなければ、じわじわと落ちていく
-        if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting)
+        if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting && !isDisconnectFall)
         {
             transform.Translate(-transform.up * 0.001f);
 
             if (transform.position.y <= -3.06f)
             {
                 GameManager.Instance.isBobbleFalloutGameOverZone = true;
+                StartCoroutine(nameof(GameOverCoroutine));
                 Debug.Log(gameObject.name);
             }
         }
@@ -141,26 +143,62 @@ public class Bobble : MonoBehaviour
     /// <summary>
     /// 破壊処理
     /// </summary>
-    public void BobbleDestroy()
+    public void BobbleDestroy(bool isFall)
     {
-        StartCoroutine(nameof(SelfDestroyProcess));
+        StartCoroutine(SelfDestroyProcess(isFall));
     }
 
     // 破壊処理コルーチン
-    private IEnumerator SelfDestroyProcess()
+    private IEnumerator SelfDestroyProcess(bool isFall)
     {
+        // スクリーン座標計算
         Vector3 scrennPos = Camera.main.WorldToScreenPoint(transform.position);
 
+        // 泡の位置にポイント表示
         GameObject text = Instantiate(_pointTextUIPrefab, scrennPos, Quaternion.identity) as GameObject;
         text.GetComponent<Text>().text = ScoreManager.Instance.NowDeletePoint.ToString();
         text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);
 
-        animator.SetBool("Delete", true);
-        overrideSprite.overrideTexture = _bobbleSprites._deleteTexture[(int)_bobbleColor];
-        yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
+        if (isFall)
+        {
+            isDisconnectFall = isFall;
+            Rigidbody2D rb = GetComponent<Rigidbody2D>();
+            rb.bodyType = RigidbodyType2D.Dynamic;
+            rb.gravityScale = 1;
+            float vecX = 1;
+            if(UnityEngine.Random.Range(0, 2) >= 1)
+            {
+                // 泡を右か左に飛ばすため、1が出たら左に飛ばすようにする
+                vecX = -1;
+            }
+            rb.AddForce(new Vector2(vecX, 1.5f) * UnityEngine.Random.Range(0.75f, 1.5f), ForceMode2D.Impulse);
+
+            GetComponent<CircleCollider2D>().enabled = false;
+            yield return new WaitForSeconds(3f);  // アニメクリップの長さ分待つ
+        }
+        else
+        {
+            animator.SetBool("Delete", true);
+            overrideSprite.overrideTexture = _bobbleSprites._deleteTexture[(int)_bobbleColor];
+            yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
+        }
+       
 
         Destroy(gameObject);
         //Destroy(text);
+    }
+
+    /// <summary>
+    /// ゲームオーバー後の処理を少し遅れて実行
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator GameOverCoroutine()
+    {
+        yield return new WaitForSeconds(2f);
+
+        FindObjectOfType<GameOverZone>().enabled = false;
+        //FindObjectOfType<GameOverPanel>().gameObject.SetActive(true);
+        GameManager.Instance.GetGameOverPanel().SetActive(true);
     }
 
 }

@@ -16,7 +16,7 @@ public class GameOverZone : MonoBehaviour
         // 泡が触れたらゲームオーバーフラグを立てる
         if (collision.CompareTag("Bobble"))
         {
-            GameManager.Instance.isBobbleFalloutGameOverZone = true;
+            //GameManager.Instance.isBobbleFalloutGameOverZone = true;
         }
     }
 

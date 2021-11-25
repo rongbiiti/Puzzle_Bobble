@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 8464348928625737380}
   - component: {fileID: 127820860103003886}
   - component: {fileID: 2307695239323031893}
+  - component: {fileID: 8506393319405518936}
   m_Layer: 0
   m_Name: Bobble
   m_TagString: Bobble
@@ -189,3 +190,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   texture: {fileID: 2800000, guid: 088ea085557971043b31d4b278862980, type: 3}
+--- !u!114 &8506393319405518936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184818080623549299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d6e3bd6ffe98842a533e4185b8dd41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
