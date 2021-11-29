@@ -14,7 +14,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     /// <summary>
     /// –AƒOƒ‹[ƒv‚ÌÅ‘å”
     /// </summary>
-    public static int BOBBLE_ROW_MAX = 27;
+    public int BOBBLE_ROW_MAX = 27;
 
     /// <summary>
     /// –A‚Ì‹ô”s‚ÌŒÂ”
@@ -73,7 +73,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         }
 
         // –A¶¬‘Ò‹@ŠÔ‚ğ‰ÁZ
-        waitTime += Time.deltaTime;
+        waitTime += Time.deltaTime * GameManager.Instance.gameSpeed;
 
         // ‘Ò‹@ŠÔ‚ğ‰z‚¦‚½‚ç–A‚ğ¶¬
         if(nextBobbleGroupCreateWaitTime <= waitTime)

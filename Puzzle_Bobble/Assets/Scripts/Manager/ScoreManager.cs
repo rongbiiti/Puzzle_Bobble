@@ -47,7 +47,7 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     {
         if (iscombo)
         {
-            if(combo <= _comboTable.Length - 1)
+            if(combo <= _comboTable.Length - 2)
             {
                 // ƒRƒ“ƒ{”{—¦ƒe[ƒuƒ‹‚Ì—v‘f”‚ð‰z‚¦‚È‚¢‚æ‚¤‚É‚·‚é
                 combo++;

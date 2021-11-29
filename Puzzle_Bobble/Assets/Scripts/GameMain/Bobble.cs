@@ -102,7 +102,7 @@ public class Bobble : MonoBehaviour
         // 泡がまだゲームオーバーゾーンに達していなければ、じわじわと落ちていく
         if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting && !isDisconnectFall)
         {
-            transform.Translate(-transform.up * 0.001f);
+            transform.Translate(-transform.up * 0.001f * GameManager.Instance.gameSpeed);
 
             if (transform.position.y <= -3.06f)
             {
@@ -196,9 +196,7 @@ public class Bobble : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
 
-        FindObjectOfType<GameOverZone>().enabled = false;
-        //FindObjectOfType<GameOverPanel>().gameObject.SetActive(true);
-        GameManager.Instance.GetGameOverPanel().SetActive(true);
+        GameManager.Instance.GameOver();
     }
 
 }

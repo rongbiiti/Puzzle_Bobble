@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5349676282821972940}
   - component: {fileID: 8462933357440164745}
+  - component: {fileID: -7318907658568124160}
   m_Layer: 0
   m_Name: HorizontalBobbleGroup_Even_EmptyBobbles
   m_TagString: Untagged
@@ -47,3 +48,15 @@ MonoBehaviour:
   rowNum: 0
   bobbles: []
   bobbleColors: 
+--- !u!114 &-7318907658568124160
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5349676282821972941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13d6e3bd6ffe98842a533e4185b8dd41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

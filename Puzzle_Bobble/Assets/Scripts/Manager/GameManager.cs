@@ -22,6 +22,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     // 泡がゲームオーバーゾーンまで落ち切ったか
     public bool isBobbleFalloutGameOverZone;
 
+    // ゲームスピード
+    public float gameSpeed = 1f;
+
     private void Start()
     {
         // 参照が空だったら検索して記憶しておく。
@@ -29,5 +32,17 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             _gameOverPanel = GameObject.Find("GameOverPanel");
         }
+    }
+
+    /// <summary>
+    /// ゲームオーバー処理
+    /// </summary>
+    public void GameOver()
+    {
+        isBobbleFalloutGameOverZone = true;
+        FindObjectOfType<GameOverZone>().enabled = false;
+        
+        // ゲームオーバーのUIをアクティブにする
+        _gameOverPanel.SetActive(true);
     }
 }

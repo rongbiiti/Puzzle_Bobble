@@ -16,4 +16,13 @@ public class PauseButton : MonoBehaviour
     {
         PauseManager.Instance.Resume();
     }
+
+    /// <summary>
+    /// ゲームオーバー処理
+    /// </summary>
+    public void GameEnd()
+    {
+        ButtonUnPause();
+        GameManager.Instance.GameOver();
+    }
 }
