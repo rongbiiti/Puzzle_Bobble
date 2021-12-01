@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4640175462395453036}
   - component: {fileID: 4640175462395453039}
   - component: {fileID: 4640175462395453038}
+  - component: {fileID: 7783967828699647911}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -120,7 +121,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4640175462395453039}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7783967828699647911}
+        m_TargetAssemblyTypeName: ButtonSE, Assembly-CSharp
+        m_MethodName: PlayButtonSE
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &7783967828699647911
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4640175462395453032}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6bd964d465ff87f49b8f57db3c1c9671, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _playSysSE: 0
 --- !u!1 &4640175462761767613
 GameObject:
   m_ObjectHideFlags: 0

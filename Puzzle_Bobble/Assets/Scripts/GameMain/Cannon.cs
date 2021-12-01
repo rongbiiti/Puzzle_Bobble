@@ -134,6 +134,7 @@ public class Cannon : MonoBehaviour
     private void OnTouchBegan(Vector3 touchPosition)
     {
         _guideCircle.SetActiveGuideCircle(true);    // 発射ガイド表示
+        SoundManager.Instance.PlaySE(SE.CannonAiming);
 
         // 以下デバッグ用
         pos = touchPosition;
@@ -154,6 +155,7 @@ public class Cannon : MonoBehaviour
             haveBobble.AddComponent<BobbleMove>().ShotBubble(_bobbleMoveSpeed, shotDirection);    // 玉を発射
             haveBobble = null;
             GameManager.Instance.shootedBobbleMoving = true;
+            SoundManager.Instance.PlaySE(SE.CannonFire);
             StartCoroutine(nameof(ReloadBobble));
         }        
 

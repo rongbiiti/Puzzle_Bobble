@@ -143,21 +143,26 @@ public class Bobble : MonoBehaviour
     /// <summary>
     /// 破壊処理
     /// </summary>
-    public void BobbleDestroy(bool isFall)
+    public void BobbleDestroy(bool isFall, float delay)
     {
-        StartCoroutine(SelfDestroyProcess(isFall));
+        StartCoroutine(SelfDestroyProcess(isFall, delay));
     }
 
     // 破壊処理コルーチン
-    private IEnumerator SelfDestroyProcess(bool isFall)
+    private IEnumerator SelfDestroyProcess(bool isFall, float delay)
     {
         // スクリーン座標計算
         Vector3 scrennPos = Camera.main.WorldToScreenPoint(transform.position);
 
+        // この泡の得点
+        string scoreText = ScoreManager.Instance.NowDeletePoint.ToString();
+
+        yield return new WaitForSeconds(delay);
+
         // 泡の位置にポイント表示
         GameObject text = Instantiate(_pointTextUIPrefab, scrennPos, Quaternion.identity) as GameObject;
-        text.GetComponent<Text>().text = ScoreManager.Instance.NowDeletePoint.ToString();
-        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);
+        text.GetComponent<Text>().text = scoreText;
+        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);       
 
         if (isFall)
         {
@@ -180,9 +185,9 @@ public class Bobble : MonoBehaviour
         {
             animator.SetBool("Delete", true);
             overrideSprite.overrideTexture = _bobbleSprites._deleteTexture[(int)_bobbleColor];
+            SoundManager.Instance.PlaySE(SE.BobbleDelete);
             yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
         }
-       
 
         Destroy(gameObject);
         //Destroy(text);

@@ -47,6 +47,7 @@ public class BobbleMove : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             moveDirection = Vector3.Reflect(moveDirection, transform.right);
+            SoundManager.Instance.PlaySE(SE.WallReflect);
         }
         else
         {
@@ -140,6 +141,8 @@ public class BobbleMove : MonoBehaviour
             myBobble.bobbleNumber.y = newIY;
 
             transform.parent = BobbleArrayManager.Instance.GetSameRowBobbleGroup(newIX, newIY, myBobble._BobbleColor, myBobble);
+
+            SoundManager.Instance.PlaySE(SE.BobbleSeted);
 
             BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble._BobbleColor);
 

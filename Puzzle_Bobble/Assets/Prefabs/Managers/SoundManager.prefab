@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7675623445111611428
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7354713948338451753}
+  - component: {fileID: 4269899577067283654}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7354713948338451753
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7675623445111611428}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4269899577067283654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7675623445111611428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c98bce4dd947c9a4dbf9f3c43cf54af0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  volume:
+    BGM: 0.5
+    SE: 1
+    SystemSE: 1
+    Mute: 0
+  BGM:
+  - {fileID: 8300000, guid: da670f9f2b7054e4ba30a17b39b2c047, type: 3}
+  - {fileID: 8300000, guid: 6a2002d94497fc84c9ee447609ddd482, type: 3}
+  SE:
+  - {fileID: 8300000, guid: ccd06eee245fbc64aa62b0dca0df243d, type: 3}
+  - {fileID: 8300000, guid: 32bede142f507e443935a9b5c3c26564, type: 3}
+  - {fileID: 8300000, guid: 1d8d1ae8604862142923955addde01f4, type: 3}
+  - {fileID: 8300000, guid: 8de330185acdcf84cb32d120e1ba8f7b, type: 3}
+  - {fileID: 8300000, guid: 2ee64a441c17bab4ba25db111c40411f, type: 3}
+  - {fileID: 8300000, guid: f0c2aa18b5cd4ac40ac10e92c23596e8, type: 3}
+  SystemSE:
+  - {fileID: 8300000, guid: dbcda9254adf78f4a9137e73ca78f928, type: 3}
+  - {fileID: 8300000, guid: ce1c5f983bdd21c4d87b20261cfaaeeb, type: 3}

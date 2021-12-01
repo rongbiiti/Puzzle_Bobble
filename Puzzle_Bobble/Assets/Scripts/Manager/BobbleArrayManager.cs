@@ -57,6 +57,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             CreateBobbleGroupObject(i);
         }
 
+        SoundManager.Instance.PlayBGM(BGM.Main);
+
     }
 
     private void Update()
@@ -354,7 +356,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if (bobbles[y][x] == BobbleColor.Delete)
         {
             ScoreManager.Instance.AddScore(true);
-            bobbleGroups[y].DestroyChildBobble(x, false);
+            bobbleGroups[y].DestroyChildBobble(x, false, 0.04f * ScoreManager.Instance.Combo);
             bobbles[y][x] = BobbleColor.None;
             
             Debug.Log("削除！！ Y : " + y + " X : " + x);
@@ -436,7 +438,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     }
 
     /// <summary>
-    /// 天井からフラッドフィルで色があるセルをマークする
+    /// 天井と繋がらなくなった泡を削除する
     /// </summary>
     private void DeleteNotConnectedCeillingBobbles()
     {
@@ -456,8 +458,11 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             MarkNotConnectedCeilBobbles(i, 0);
         }
 
+        // 1個でも泡を消すことができたか
+        bool isDeleted = false;
+
         // マーク後泡を全てチェックする
-        for( int y = 0; y < BOBBLE_ROW_MAX; y++)
+        for ( int y = 0; y < BOBBLE_ROW_MAX; y++)
         {
             for(int x = 0; x < BOBBLE_EVEN_SIZE - (y % 2); x++)
             {
@@ -465,9 +470,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
                 {
                     ScoreManager.Instance.AddScore(false);
-                    bobbleGroups[y].DestroyChildBobble(x, true);
+                    bobbleGroups[y].DestroyChildBobble(x, true, 0);
                     bobbles[y][x] = BobbleColor.None;
-                    
+                    isDeleted = true;
                     Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
                 }
                 else
@@ -478,7 +483,13 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                     bobbles[y][x] = tmp;
                 }
             }
-        }        
+        }      
+        
+        // 泡を消していたら、SE再生
+        if(isDeleted)
+        {
+            SoundManager.Instance.PlaySE(SE.BobbleFall);
+        }
     }   
 
     private IEnumerator BobbleDeleteCoroutine(int x, int y)
