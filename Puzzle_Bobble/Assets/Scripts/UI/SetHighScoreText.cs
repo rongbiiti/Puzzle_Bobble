@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class SetHighScoreText : MonoBehaviour
 {
+    // ハイスコアテキストを入れるText
     private Text[] highScoreTexts;
 
     void Start()
@@ -19,12 +20,13 @@ public class SetHighScoreText : MonoBehaviour
         foreach(var hst in highScoreTexts)
         {
             // UIにハイスコアを反映
-            hst.text = i + 1 + " : " + SaveDataManager.Instance.saveData._highScore[i].ToString();
+            hst.text = i + 1 + " : " + SaveDataManager.Instance.saveData._highScore[i].ToString("N0");
 
             // ハイスコア更新時、そのスコアを1680万色に光らせる
             if (updateIndex != -1 && i == updateIndex)
             {
                 hst.gameObject.AddComponent<GamingColorChangeAnim>();
+                SoundManager.Instance.PlaySystemSE(SysSE.HighScoreUpdate);
             }
 
             i++;

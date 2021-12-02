@@ -8,7 +8,9 @@ public class PauseButton : MonoBehaviour
     // ポーズ中か否かを見て、ポーズするか解除する
     public void ButtonPause()
     {
+        if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
         PauseManager.Instance.Pause();
+        SoundManager.Instance.PlaySystemSE(SysSE.Pause);
     }
 
     // ポーズ解除してもらう
@@ -23,6 +25,7 @@ public class PauseButton : MonoBehaviour
     public void GameEnd()
     {
         ButtonUnPause();
+        SoundManager.Instance.BGMFadeChange(BGM.Result, 0.5f);
         GameManager.Instance.GameOver();
     }
 }

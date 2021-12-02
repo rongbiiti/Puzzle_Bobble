@@ -356,7 +356,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if (bobbles[y][x] == BobbleColor.Delete)
         {
             ScoreManager.Instance.AddScore(true);
-            bobbleGroups[y].DestroyChildBobble(x, false, 0.04f * ScoreManager.Instance.Combo);
+            bobbleGroups[y].DestroyChildBobble(x, false, 0.0334f * ScoreManager.Instance.Combo);
             bobbles[y][x] = BobbleColor.None;
             
             Debug.Log("çÌèúÅIÅI Y : " + y + " X : " + x);

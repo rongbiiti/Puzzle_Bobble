@@ -91,11 +91,6 @@ public class Bobble : MonoBehaviour
         }
         
     }
-
-    void Start()
-    {
-
-    }
     
     void Update()
     {
@@ -166,6 +161,7 @@ public class Bobble : MonoBehaviour
 
         if (isFall)
         {
+            // –A‚ª“Vˆä‚ÆŒq‚ª‚ç‚È‚­‚È‚èA—‰º‚µ‚Ä‚¢‚­‚Æ‚«
             isDisconnectFall = isFall;
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
@@ -199,8 +195,10 @@ public class Bobble : MonoBehaviour
     /// <returns></returns>
     private IEnumerator GameOverCoroutine()
     {
-        yield return new WaitForSeconds(2f);
+        SoundManager.Instance.BGMFadeChange(BGM.Result, 3f);
+        SoundManager.Instance.PlaySE(SE.GameOver);
 
+        yield return new WaitForSeconds(3f);
         GameManager.Instance.GameOver();
     }
 

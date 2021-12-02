@@ -3,29 +3,38 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// BGM列挙定数
 public enum BGM
 {
-    Main,
+    Main,       // ゲームメイン
+    Title,      // タイトル画面
+    Result,     // リザルト画面
 
     Max
 }
 
+// SE列挙定数
 public enum SE
 {
-    WallReflect,
-    BobbleDelete,
-    CannonAiming,
-    CannonFire,
-    BobbleFall,
-    BobbleSeted,
+    WallReflect,        // 泡が壁に当たって反射
+    BobbleDelete,       // 泡消滅
+    CannonAiming,       // 大砲で狙う
+    CannonFire,         // 大砲発射
+    BobbleFall,         // 泡が落ちる
+    BobbleSeted,        // 泡がくっつく
+    BobbleExplosion,    // 泡が爆発
+    GameOver,           // ゲームオーバー
 
     Max
 }
 
+// システムSE列挙定数
 public enum SysSE
 {
-    Touch,
-    GameStart,
+    Touch,              // ボタンにタッチ
+    GameStart,          // ゲームスタートボタン押下時
+    Pause,              // ポーズ時
+    HighScoreUpdate,    // ハイスコア更新
 
     MAX
 }
@@ -75,6 +84,17 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
         {
             SystemSEsources[i] = gameObject.AddComponent<AudioSource>();
         }
+
+        // ボリューム設定
+        BGMsource.volume = volume.BGM;
+        foreach (AudioSource source in SEsources)
+        {
+            source.volume = volume.SE;
+        }
+        foreach (AudioSource source in SystemSEsources)
+        {
+            source.volume = volume.SystemSE;
+        }
     }
 
     void Update()
@@ -89,18 +109,6 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
         {
             source.mute = volume.Mute;
         }
-
-        // ボリューム設定
-        BGMsource.volume = volume.BGM;
-        foreach (AudioSource source in SEsources)
-        {
-            source.volume = volume.SE;
-        }
-        foreach (AudioSource source in SystemSEsources)
-        {
-            source.volume = volume.SystemSE;
-        }
-
 
     }
 
@@ -224,6 +232,21 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
         }
     }
 
+    // 再生中のBGMをフェードアウトさせてから指定した新しいBGMを再生開始する
+    public void BGMFadeChange(BGM newBGM, float fadeOutTime)
+    {
+        StartCoroutine(FadeOut(fadeOutTime));
+        StartCoroutine(PlayBGMAfterWait(newBGM, fadeOutTime));
+    }
+
+    // 指定した時間待機してからBGMを再生する
+    private IEnumerator PlayBGMAfterWait(BGM newBGM, float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        yield return new WaitForFixedUpdate();
+        PlayBGM(newBGM);
+    }
+
     // フェードアウトコルーチン呼び出し
     public void BGMFadeOut(float fadeOutTime)
     {
@@ -236,7 +259,7 @@ public class SoundManager : SingletonMonoBehaviour<SoundManager>
         float currentTime = 0.0f;
         float firstVol = BGMsource.volume;
 
-        // 音量を徐々に下げる
+        // 現在の音量から0まで、0.0f ~ 1.0fの範囲になるように徐々に下げる
         while(fadeOutTime > currentTime)
         {
             currentTime += Time.fixedDeltaTime;

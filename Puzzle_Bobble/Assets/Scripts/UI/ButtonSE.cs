@@ -6,17 +6,6 @@ public class ButtonSE : MonoBehaviour
 {
     [SerializeField] private SysSE _playSysSE;
 
-    void Start()
-    {
-        
-    }
-
-    
-    void Update()
-    {
-        
-    }
-
     public void PlayButtonSE()
     {
         SoundManager.Instance.PlaySystemSE(_playSysSE);

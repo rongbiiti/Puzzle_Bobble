@@ -44,13 +44,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   volume:
-    BGM: 0.5
+    BGM: 0.2
     SE: 1
     SystemSE: 1
     Mute: 0
   BGM:
   - {fileID: 8300000, guid: da670f9f2b7054e4ba30a17b39b2c047, type: 3}
   - {fileID: 8300000, guid: 6a2002d94497fc84c9ee447609ddd482, type: 3}
+  - {fileID: 8300000, guid: 29dfef74b2707a84f9f9803f4f8be731, type: 3}
   SE:
   - {fileID: 8300000, guid: ccd06eee245fbc64aa62b0dca0df243d, type: 3}
   - {fileID: 8300000, guid: 32bede142f507e443935a9b5c3c26564, type: 3}
@@ -58,6 +59,10 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8de330185acdcf84cb32d120e1ba8f7b, type: 3}
   - {fileID: 8300000, guid: 2ee64a441c17bab4ba25db111c40411f, type: 3}
   - {fileID: 8300000, guid: f0c2aa18b5cd4ac40ac10e92c23596e8, type: 3}
+  - {fileID: 8300000, guid: 61317366f2a75ca4cbbc780ba031a435, type: 3}
+  - {fileID: 8300000, guid: 572a95816ea5a694db48b843f8b56a67, type: 3}
   SystemSE:
   - {fileID: 8300000, guid: dbcda9254adf78f4a9137e73ca78f928, type: 3}
   - {fileID: 8300000, guid: ce1c5f983bdd21c4d87b20261cfaaeeb, type: 3}
+  - {fileID: 8300000, guid: 82c98d3b0c364d746916db3beace10de, type: 3}
+  - {fileID: 8300000, guid: 3ba90f0bbed39c04287452f2587f8508, type: 3}
