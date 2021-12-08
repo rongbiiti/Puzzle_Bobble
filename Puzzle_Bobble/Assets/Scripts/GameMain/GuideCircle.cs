@@ -28,9 +28,25 @@ public class GuideCircle : MonoBehaviour
         }
 
         // q—v‘f‚Ì•\¦ó‘Ô‚ğ‚·‚×‚ÄØ‚è‘Ö‚¦‚é
+        int i = 0;
         foreach(var sp in _chiledSprRenderers)
         {
-            sp.enabled = value;
+            
+            if (value)
+            {
+                StartCoroutine(ChiledRendererActive(sp, i++ * 0.0167f));
+            }
+            else
+            {
+                sp.enabled = value;
+                StopAllCoroutines();
+            }
         }
+    }
+
+    private IEnumerator ChiledRendererActive(SpriteRenderer sp, float time)
+    {
+        yield return new WaitForSeconds(time);
+        sp.enabled = true;
     }
 }

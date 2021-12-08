@@ -86,11 +86,5 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
         style.fontSize = 50;
     }
 
-    private void OnGUI()
-    {
-        var sw = Screen.width;
-        var sh = Screen.height;
-
-        GUI.Label(new Rect(50, sh - 80, 500, 500), "SCORE : " + score + "  COMBO : " + combo, style);
-    }
+    
 }

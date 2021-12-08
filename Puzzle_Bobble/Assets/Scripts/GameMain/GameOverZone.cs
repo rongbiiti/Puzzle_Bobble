@@ -20,11 +20,5 @@ public class GameOverZone : MonoBehaviour
         }
     }
 
-    private void OnGUI()
-    {
-        if (GameManager.Instance.isBobbleFalloutGameOverZone)
-        {
-            GUI.Label(new Rect(100, 960, 1080, 60), "Game Over", style);
-        }
-    }
+    
 }

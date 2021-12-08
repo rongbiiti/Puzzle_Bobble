@@ -38,6 +38,11 @@ public class Bobble : MonoBehaviour
     [SerializeField] private GameObject _pointTextUIPrefab;
 
     /// <summary>
+    /// 消滅時エフェクト
+    /// </summary>
+    [SerializeField] private GameObject _deleteEffect;
+
+    /// <summary>
     /// 泡の色
     /// </summary>
     [SerializeField]
@@ -157,12 +162,15 @@ public class Bobble : MonoBehaviour
         // 泡の位置にポイント表示
         GameObject text = Instantiate(_pointTextUIPrefab, scrennPos, Quaternion.identity) as GameObject;
         text.GetComponent<Text>().text = scoreText;
-        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);       
+        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);
+        text.transform.position = scrennPos;
+        text.transform.localScale = Vector3.one;
 
         if (isFall)
         {
             // 泡が天井と繋がらなくなり、落下していくとき
             isDisconnectFall = isFall;
+
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
             rb.gravityScale = 1;
@@ -179,9 +187,13 @@ public class Bobble : MonoBehaviour
         }
         else
         {
+            // 消滅アニメーションさせる
             animator.SetBool("Delete", true);
             overrideSprite.overrideTexture = _bobbleSprites._deleteTexture[(int)_bobbleColor];
+            // 音再生
             SoundManager.Instance.PlaySE(SE.BobbleDelete);
+            // エフェクト
+            Instantiate(_deleteEffect, transform.position, Quaternion.identity);
             yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
         }
 
@@ -197,6 +209,7 @@ public class Bobble : MonoBehaviour
     {
         SoundManager.Instance.BGMFadeChange(BGM.Result, 3f);
         SoundManager.Instance.PlaySE(SE.GameOver);
+        GameManager.Instance.InstantiateGameOverText();
 
         yield return new WaitForSeconds(3f);
         GameManager.Instance.GameOver();

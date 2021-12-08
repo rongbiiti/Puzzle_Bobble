@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BobbleMove : MonoBehaviour
 {
-    [HideInInspector] public float moveSpeed = 1f;    // 玉の速度
+    [HideInInspector] public float moveSpeed = 2f;    // 玉の速度
     [HideInInspector] public Vector3 moveDirection;   // 玉の進行方向
     private Vector3 prePosition;                      // 前フレームでの位置
     private bool moveFlg;           // これがtrueのときに移動処理をさせる

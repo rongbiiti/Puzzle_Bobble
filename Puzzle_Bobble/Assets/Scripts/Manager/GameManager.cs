@@ -5,6 +5,11 @@ using UnityEngine;
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
     /// <summary>
+    /// アニメーションするゲームオーバーテキストのPrefab
+    /// </summary>
+    [SerializeField] private GameObject _gameOverTextPrefab;
+
+    /// <summary>
     /// ゲームオーバーUI
     /// </summary>
     [SerializeField] private GameObject _gameOverPanel;
@@ -32,6 +37,14 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             _gameOverPanel = GameObject.Find("GameOverPanel");
         }
+    }
+
+    /// <summary>
+    /// アニメーションするゲームオーバーテキストのPrefabを出す
+    /// </summary>
+    public void InstantiateGameOverText()
+    {
+        Instantiate(_gameOverTextPrefab, ScoreManager.Instance.GetCanvas().transform);
     }
 
     /// <summary>
