@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
-using System;
 
 public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 {
@@ -34,6 +33,11 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
     // 泡グループオブジェクトの配列
     private List<BobbleGroup> bobbleGroups = new List<BobbleGroup>();
+
+    /// <summary>
+    /// ポイントUIプレハブ
+    /// </summary>
+    [SerializeField] private GameObject _pointTextUIPrefab;
 
     private float bobbleCreateStartPosY = 9.52f;        // 一番最初に生成する泡グループのY座標
     private float bobbleCreateIncreaseYPos = 0.52f;      // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
@@ -67,12 +71,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         if (GameManager.Instance.isBobbleFalloutGameOverZone) return;
 
         // 泡の削除演出中
-        if (GameManager.Instance.isBobbleDeleting)
-        {
-            
-
-            return;
-        }
+        if (GameManager.Instance.isBobbleDeleting) return;
 
         // 泡生成待機時間を加算
         waitTime += Time.deltaTime * GameManager.Instance.gameSpeed;
@@ -85,7 +84,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         }
     }
 
-
+    /// <summary>
+    /// 新しい泡グループを0列目と1列目に追加する
+    /// </summary>
     private void AddNewBobbleGroup()
     {
         foreach (var bg in bobbleGroups)
@@ -276,6 +277,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
             bobbles = workBobbles.DeepCopy();
+            ScoreManager.Instance.Combo = 0;
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
         }
@@ -355,8 +357,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // マークされたものなら、削除
         if (bobbles[y][x] == BobbleColor.Delete)
         {
-            ScoreManager.Instance.AddScore(true);
-            bobbleGroups[y].DestroyChildBobble(x, false, 0.0334f * ScoreManager.Instance.Combo);
+            ScoreManager.Instance.AddNowTurnPoint(true);
+            bobbleGroups[y].DestroyChildBobble(x, false, 0.0334f * ScoreManager.Instance.DeleteCombo);
             bobbles[y][x] = BobbleColor.None;
             
             Debug.Log("削除！！ Y : " + y + " X : " + x);
@@ -469,7 +471,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 // 泡が色付きならマークされていない、天井と繋がっていないので削除する
                 if (BobbleColor.Blue <= bobbles[y][x] && bobbles[y][x] < BobbleColor.Max)
                 {
-                    ScoreManager.Instance.AddScore(false);
+                    ScoreManager.Instance.AddNowTurnPoint(false);
                     bobbleGroups[y].DestroyChildBobble(x, true, 0);
                     bobbles[y][x] = BobbleColor.None;
                     isDeleted = true;
@@ -498,10 +500,19 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         yield return new WaitForEndOfFrame();
 
         // コンボ数リセット
-        ScoreManager.Instance.Combo = 0;
+        ScoreManager.Instance.DeleteCombo = 0;
+        ScoreManager.Instance.FallCombo = 0;
+        ScoreManager.Instance.Combo += 1;
+        ScoreManager.Instance.NowTurnPoint = 0;
 
         // 泡を削除
         BobbleDelete(x, y);
+
+        // カメラを揺らす
+        //if (ScoreManager.Instance.DeleteCombo >= 6)
+        //{
+            //FindObjectOfType<CameraShake>().Shake(0.15f, 0.1f);
+        //}
 
         // 削除アニメクリップの長さ分待つ
         yield return new WaitForSeconds(0.5f);
@@ -510,8 +521,26 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 浮いた泡を削除        
         DeleteNotConnectedCeillingBobbles();
 
+        // カメラを揺らす
+        if (ScoreManager.Instance.FallCombo >= 6)
+        {
+            FindObjectOfType<CameraShake>().Shake(0.25f, 0.07f);
+        }
+
         // 削除アニメクリップの長さ分待つ
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForEndOfFrame();
+
+        // スクリーン座標計算
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
+        string scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
+
+        GameObject text = Instantiate(_pointTextUIPrefab, screenPos, Quaternion.identity) as GameObject;
+        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos);
+
+        ScoreManager.Instance.AddNowTurnPointToScore();
+
+        yield return new WaitForSeconds(0.25f);
         yield return new WaitForEndOfFrame();
 
         // 削除演出中フラグを折る

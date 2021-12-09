@@ -102,6 +102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _pointTextUIPrefab: {fileID: 2048118150054944409, guid: 53f3f430a09df4940a52cf1cbbfa03ad, type: 3}
   _deleteEffect: {fileID: 817386711290892780, guid: 3fe5de483e2eaa1438681f5bb7f8789f, type: 3}
+  _fallEffect: {fileID: 4255604471266937054, guid: 222726301c605e446be6147e708621dd, type: 3}
   _bobbleColor: 0
   _onAwakeColorChange: 0
   _bobbleSprites:

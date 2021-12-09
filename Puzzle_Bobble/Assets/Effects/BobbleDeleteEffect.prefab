@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 690777132793513232}
   - component: {fileID: 775793734616398610}
   m_Layer: 0
-  m_Name: CFX_Firework_Trails_Gravity
+  m_Name: BobbleDeleteEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

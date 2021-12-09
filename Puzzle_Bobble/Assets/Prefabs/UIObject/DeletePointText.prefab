@@ -71,8 +71,8 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 45
-    m_FontStyle: 0
+    m_FontSize: 40
+    m_FontStyle: 1
     m_BestFit: 0
     m_MinSize: 4
     m_MaxSize: 50
@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 0.908416, g: 0.9150943, b: 0.13381095, a: 0.5254902}
+  m_EffectColor: {r: 0.98039216, g: 0, b: 0.8745098, a: 1}
   m_EffectDistance: {x: 1.5, y: 1}
   m_UseGraphicAlpha: 1
 --- !u!114 &210919680549376587

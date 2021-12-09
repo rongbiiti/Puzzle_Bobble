@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using UnityEngine.UI;
 
 /// <summary>
 /// 泡の色
@@ -41,6 +40,11 @@ public class Bobble : MonoBehaviour
     /// 消滅時エフェクト
     /// </summary>
     [SerializeField] private GameObject _deleteEffect;
+
+    /// <summary>
+    /// 落下時エフェクト
+    /// </summary>
+    [SerializeField] private GameObject _fallEffect;
 
     /// <summary>
     /// 泡の色
@@ -152,37 +156,44 @@ public class Bobble : MonoBehaviour
     private IEnumerator SelfDestroyProcess(bool isFall, float delay)
     {
         // スクリーン座標計算
-        Vector3 scrennPos = Camera.main.WorldToScreenPoint(transform.position);
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
 
         // この泡の得点
-        string scoreText = ScoreManager.Instance.NowDeletePoint.ToString();
+        string scoreText = ScoreManager.Instance.NowDeletePoint.ToString("N0");
 
         yield return new WaitForSeconds(delay);
 
         // 泡の位置にポイント表示
-        GameObject text = Instantiate(_pointTextUIPrefab, scrennPos, Quaternion.identity) as GameObject;
-        text.GetComponent<Text>().text = scoreText;
-        text.transform.SetParent(ScoreManager.Instance.GetCanvas().transform);
-        text.transform.position = scrennPos;
-        text.transform.localScale = Vector3.one;
+        GameObject text = Instantiate(_pointTextUIPrefab, screenPos, Quaternion.identity) as GameObject;
+        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos);
 
         if (isFall)
         {
             // 泡が天井と繋がらなくなり、落下していくとき
             isDisconnectFall = isFall;
 
+            // Rigidbody取得、Dynamicに切り替えて重力がかかるようにする
             Rigidbody2D rb = GetComponent<Rigidbody2D>();
             rb.bodyType = RigidbodyType2D.Dynamic;
-            rb.gravityScale = 1;
+            rb.gravityScale = 1.2f;
+
             float vecX = 1;
+
             if(UnityEngine.Random.Range(0, 2) >= 1)
             {
                 // 泡を右か左に飛ばすため、1が出たら左に飛ばすようにする
                 vecX = -1;
             }
+
+            // 右上か左上に力を加える
             rb.AddForce(new Vector2(vecX, 1.5f) * UnityEngine.Random.Range(0.75f, 1.5f), ForceMode2D.Impulse);
 
+            //当たり判定オフ
             GetComponent<CircleCollider2D>().enabled = false;
+
+            // エフェクト
+            Instantiate(_fallEffect, transform.position, Quaternion.identity);
+
             yield return new WaitForSeconds(3f);  // アニメクリップの長さ分待つ
         }
         else

@@ -78,7 +78,6 @@ namespace VadimskyiLab.SimpleUI
             go.transform.SetParent(transform, false);
             go.GetComponent<CanvasRenderer>().cullTransparentMesh = true;
             _rippleSprite = go.GetComponent<Image>();
-            
             _rippleSprite.raycastTarget = false;
 
             SetRippleObjectSize(_rippleSprite);
@@ -124,8 +123,8 @@ namespace VadimskyiLab.SimpleUI
                 new Rect(Vector2.zero, new Vector2(texSize, texSize)),
                 Vector2.zero,
                 100,
-                0,
-                SpriteMeshType.Tight);
+                1,
+                SpriteMeshType.FullRect);
         }
 
         private int GetRippleTextureSize()

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
 {
@@ -18,6 +19,16 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     [SerializeField] private int _basePoint = 100;
 
     /// <summary>
+    /// 同色泡削除コンボ数の上限
+    /// </summary>
+    [SerializeField] private int _deleteComboMax = 20;
+
+    /// <summary>
+    /// 泡落下コンボ数の上限
+    /// </summary>
+    [SerializeField] private int _fallComboMax = 20;
+
+    /// <summary>
     /// コンボ数に応じた倍率を設定するテーブル
     /// </summary>
     [SerializeField] private int[] _comboTable;
@@ -27,8 +38,32 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     /// </summary>
     private int combo;
     public int Combo {
-        set { combo = value; }
+        set { combo = value;
+            if (combo > _comboTable.Length - 1)
+            {
+                // コンボ倍率テーブルの要素数を越えないようにする
+                combo = _comboTable.Length - 1;
+            }
+        }
         get { return combo; }
+    }
+
+    /// <summary>
+    /// 同色の泡を一度に消したコンボ数
+    /// </summary>
+    private int deleteCombo;
+    public int DeleteCombo {
+        set { deleteCombo = value; }
+        get { return deleteCombo; }
+    }
+
+    /// <summary>
+    /// 一度に落とした泡のコンボ数
+    /// </summary>
+    private int fallCombo;
+    public int FallCombo {
+        set { fallCombo = value; }
+        get { return fallCombo; }
     }
 
     /// <summary>
@@ -37,33 +72,61 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     private int nowDeletePoint;
     public int NowDeletePoint
     {
+        
         get { return nowDeletePoint; }
+    }
+
+    /// <summary>
+    /// 1ショットで獲得したポイントの合計
+    /// </summary>
+    private int nowTurnPoint;
+    public int NowTurnPoint {
+        set { nowTurnPoint = value; }
+        get { return nowTurnPoint; }
     }
 
     /// <summary>
     /// スコアを加算
     /// </summary>
-    public void AddScore(bool iscombo)
+    /// <param name="isDelete">同色の削除中か</param>
+    public void AddNowTurnPoint(bool isDelete)
     {
-        if (iscombo)
+        if (isDelete)
         {
-            if(combo <= _comboTable.Length - 2)
+            deleteCombo++;
+
+            if(_deleteComboMax < deleteCombo)
             {
-                // コンボ倍率テーブルの要素数を越えないようにする
-                combo++;
+                deleteCombo = _deleteComboMax;
             }
 
             // 繋がってる泡を削除したときはコンボ数が適用される
-            score += _basePoint * _comboTable[combo];
-            nowDeletePoint = _basePoint * _comboTable[combo];
+            nowDeletePoint = _basePoint * deleteCombo * _comboTable[combo];
+            
         }
         else
         {
-            // 浮いた泡を削除したときはコンボ数が適用されない
-            score += _basePoint * _comboTable[0];
-            nowDeletePoint = _basePoint * _comboTable[0];
+            fallCombo++;
+
+            if (_fallComboMax < fallCombo)
+            {
+                fallCombo = _fallComboMax;
+            }
+
+            // 浮いた泡を削除したときはベースポイント × (2^fallCombo)
+            nowDeletePoint = _basePoint * (int)Mathf.Pow(2, fallCombo);
         }
-        
+
+        nowTurnPoint += nowDeletePoint;
+
+    }
+
+    /// <summary>
+    /// 1ショットで獲得したポイントをスコアに反映させる
+    /// </summary>
+    public void AddNowTurnPointToScore()
+    {
+        score += nowTurnPoint;
     }
 
     /// <summary>

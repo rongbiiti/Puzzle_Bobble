@@ -45,6 +45,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public void InstantiateGameOverText()
     {
         Instantiate(_gameOverTextPrefab, ScoreManager.Instance.GetCanvas().transform);
+        isBobbleFalloutGameOverZone = true;
+        FindObjectOfType<GameOverZone>().enabled = false;
+        FindObjectOfType<PauseButton>().gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -52,8 +55,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     public void GameOver()
     {
-        isBobbleFalloutGameOverZone = true;
-        FindObjectOfType<GameOverZone>().enabled = false;
         
         // ゲームオーバーのUIをアクティブにする
         _gameOverPanel.SetActive(true);

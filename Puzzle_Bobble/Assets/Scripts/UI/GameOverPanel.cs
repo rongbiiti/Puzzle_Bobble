@@ -18,7 +18,7 @@ public class GameOverPanel : MonoBehaviour
     void Start()
     {
         _pauseButton.SetActive(false);
-        scoreText.text = ScoreManager.Instance.Score.ToString();
+        scoreText.text = ScoreManager.Instance.Score.ToString("N0");
     }
 
     

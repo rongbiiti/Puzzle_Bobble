@@ -34,6 +34,11 @@ public class Cannon : MonoBehaviour
     /// </summary>
     [SerializeField] private Transform _nextBobblePosition;
 
+    /// <summary>
+    /// 発射エフェクト
+    /// </summary>
+    [SerializeField] private GameObject _fireEffect;
+
     private GameObject haveBobble;      // 大砲にセットされている玉
     private bool shotFlg;               // 発射可能フラグ
     private Vector3 shotDirection;      // 玉を発射する方向
@@ -157,6 +162,7 @@ public class Cannon : MonoBehaviour
             GameManager.Instance.shootedBobbleMoving = true;
             SoundManager.Instance.PlaySE(SE.CannonFire);
             StartCoroutine(nameof(ReloadBobble));
+            Instantiate(_fireEffect, transform.position, Quaternion.identity);
         }        
 
         // 以下デバッグ用
