@@ -4784,7 +4784,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bobblePrefab: {fileID: 184818080623549299, guid: 0d5a11e4063a27f48824b6bbff7eac40, type: 3}
-  _bobbleMoveSpeed: 0.13
+  _bobbleMoveSpeed: 10
   _guideCircle: {fileID: 982315110}
   _minAngleDelta: 10
   _maxAngleDelta: 170

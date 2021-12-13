@@ -11,22 +11,30 @@ public class BobbleMove : MonoBehaviour
     private bool hitFlg;            // これがfalseのときだけヒット後の処理
     private float bobbleHeightSize = 0.52f;           // 泡１個の縦幅
     private float bobbleWidthSize = 0.56f;            // 泡１個の横幅
+    private Vector3 lastVelocity;
     private Bobble myBobble;
+    private Rigidbody2D rb;
 
     void Start()
     {
         myBobble = GetComponent<Bobble>();
     }
 
-    void Update()
+    private void FixedUpdate()
     {
         // フラグが立っている時だけ移動処理をさせる
         if (moveFlg)
         {
-            transform.Translate(moveDirection * moveSpeed);
+            //transform.Translate(moveDirection * moveSpeed);
+            
         }
-
+        lastVelocity = rb.velocity;
         prePosition = transform.position;
+    }
+
+    void Update()
+    {
+        
     }
 
     /// <summary>
@@ -36,8 +44,12 @@ public class BobbleMove : MonoBehaviour
     /// <param name="direction">玉の進行方向</param>
     public void ShotBubble(float speed, Vector3 direction)
     {
+        rb = GetComponent<Rigidbody2D>();
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        rb.gravityScale = 0f;
         moveSpeed = speed;
         moveDirection = direction;
+        rb.AddForce(moveDirection * moveSpeed, ForceMode2D.Impulse);
         moveFlg = true;
     }
 
@@ -47,6 +59,7 @@ public class BobbleMove : MonoBehaviour
         if (collision.gameObject.CompareTag("Wall"))
         {
             moveDirection = Vector3.Reflect(moveDirection, transform.right);
+            rb.velocity = Vector3.Reflect(lastVelocity, collision.contacts[0].normal);
             SoundManager.Instance.PlaySE(SE.WallReflect);
         }
         else
@@ -54,6 +67,9 @@ public class BobbleMove : MonoBehaviour
             // １フレームで２回処理させないように
             if (hitFlg) return;
             hitFlg = true;
+
+            rb.bodyType = RigidbodyType2D.Kinematic;
+            rb.velocity = Vector3.zero;
 
             // 当たった泡のBobbleスクリプトを取得
             Bobble hitBobble = collision.gameObject.GetComponent<Bobble>();
