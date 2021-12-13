@@ -237,6 +237,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         Debug.Log(string.Join(", ", bobbles[y - 1].Select(obj => obj.ToString())));
 
+        // ポーズできないようにする
+        Pauser.isCanPausing = false;
+
         // 発射した玉とヒットした泡の色が同じか
         if (bobbles[y][x] == color)
         {
@@ -246,7 +249,6 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             FloodFill(x, y, color, ref deleteCount);
 
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
-            
 
             if(3 <= deleteCount)
             {
@@ -268,6 +270,10 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         else
         {
             Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
+
+            // ポーズできるようにする
+            Pauser.isCanPausing = true;
+
             return false;
         }
 
@@ -280,6 +286,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             ScoreManager.Instance.Combo = 0;
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+
+            // ポーズできるようにする
+            Pauser.isCanPausing = true;
         }
 
         return true;
@@ -545,6 +554,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         // 削除演出中フラグを折る
         GameManager.Instance.isBobbleDeleting = false;
+
+        // ポーズできるようにする
+        Pauser.isCanPausing = true;
 
     }
 }

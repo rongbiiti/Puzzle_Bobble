@@ -222,6 +222,8 @@ public class Cannon : MonoBehaviour
     /// </summary>
     public void ShotBobbleChange()
     {
+        if (GameManager.Instance.shootedBobbleMoving) return;
+
         // ˆÊ’u‚ð“ü‚ê‘Ö‚¦
         haveBobble.transform.position = _nextBobblePosition.transform.position;
         nextBobble.transform.position = transform.position;

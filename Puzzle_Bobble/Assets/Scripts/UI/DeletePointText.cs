@@ -7,11 +7,6 @@ public class DeletePointText : MonoBehaviour
 {
     private RectTransform rectTransform;
 
-    void Start()
-    {
-        
-    }
-
     /// <summary>
     /// 得点テキストオブジェクトのパラメータ設定
     /// </summary>

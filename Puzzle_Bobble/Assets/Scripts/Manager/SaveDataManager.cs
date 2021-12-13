@@ -24,17 +24,7 @@ public class SaveDataManager : SingletonMonoBehaviour<SaveDataManager>
         saveData = new SaveData();
         Debug.Log(filePath);
         Load();
-    }
-
-    void Start()
-    {
-        
-    }
-
-    void Update()
-    {
-        
-    }
+    } 
 
     /// <summary>
     /// プレイ後のスコアを全てのハイスコアと比較
