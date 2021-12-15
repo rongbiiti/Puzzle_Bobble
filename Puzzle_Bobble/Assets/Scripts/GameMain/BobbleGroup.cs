@@ -26,11 +26,7 @@ public class BobbleGroup : MonoBehaviour
         gameObject.name = rowNum + "Row";
     }
     
-    void Update()
-    {
-        
-    }
-
+    // 行を変える
     public void ChangeRowNum(int newRowNum)
     {
         rowNum = newRowNum;
@@ -43,6 +39,7 @@ public class BobbleGroup : MonoBehaviour
         }
     }
 
+    // 泡をリセットする
     public void ClearBobbleColors()
     {
         // 一次元目を確保
@@ -72,13 +69,35 @@ public class BobbleGroup : MonoBehaviour
         i = 0;
         foreach (var b in bobbles)
         {
-            b.SetNumber(i++, rowNum);       // 行と列番号設定
+            b.SetNumber(i, rowNum);       // 行と列番号設定
 
-            // 泡の色をランダムに変更
-            b._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
 
+            if (Probability.Lottery(BobbleArrayManager.Instance.PROB_SAME_COL_BOBBLE_COLOR) && // 一定の確率で
+                0 < rowNum &&                                                                         // 1列目以上で
+                i < BobbleArrayManager.Instance.BOBBLE_EVEN_SIZE - (1 + rowNum % 2) &&                // 右端でなく                                                               
+                BobbleColor.Blue <= BobbleArrayManager.Instance.bobbles[rowNum + 1][i] &&         // 生成可能な色の範囲なら
+                BobbleArrayManager.Instance.bobbles[rowNum + 1][i] <= BobbleColor.Yellow)
+            {
+                
+                // 同じ列で一つ前の行の泡と同じ色の泡を生成する
+                b._BobbleColor = BobbleArrayManager.Instance.bobbles[rowNum + 1][i];
+            }
+            else if(Probability.Lottery(BobbleArrayManager.Instance.PROB_SAME_ROW_BOBBLE_COLOR) && 0 < i)
+            {
+                // 一定の確率で、1個左の泡と同じ色の泡を生成する
+                // 1個目だったらこれは行わない
+                b._BobbleColor = bobbleColors[i - 1];
+            }
+            else
+            {
+                // 泡の色をランダムに変更
+                b._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
+            }
+            
             bobbleColors.Add(b._BobbleColor);// 泡の色を取得しておく
             childBobbleCount++;             // 泡の数を記録
+
+            i++;
         }
     }
 

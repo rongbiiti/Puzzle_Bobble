@@ -142,3 +142,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2be1a47ca19e7e64c8c0027218749615, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _falledPointOutlineColor: {r: 0.21568628, g: 0.8235294, b: 0.23921569, a: 1}

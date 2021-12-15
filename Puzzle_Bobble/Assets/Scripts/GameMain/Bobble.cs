@@ -165,7 +165,7 @@ public class Bobble : MonoBehaviour
 
         // 泡の位置にポイント表示
         GameObject text = Instantiate(_pointTextUIPrefab, screenPos, Quaternion.identity) as GameObject;
-        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos);
+        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos, isFall, true);
 
         if (isFall)
         {

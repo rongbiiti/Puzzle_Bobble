@@ -39,11 +39,11 @@ public class Cannon : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject _fireEffect;
 
-    private GameObject haveBobble;      // 大砲にセットされている玉
+    private GameObject haveBobbleObj;      // 大砲にセットされている玉
     private bool shotFlg;               // 発射可能フラグ
     private Vector3 shotDirection;      // 玉を発射する方向
 
-    private GameObject nextBobble;      // 次に大砲にセットする玉
+    private GameObject nextBobbleObj;      // 次に大砲にセットする玉
 
     private GUIStyle style; // OnGUIでデバッグ表示用
     private Vector3 pos;    // OnGUIでデバッグ表示用
@@ -64,9 +64,9 @@ public class Cannon : MonoBehaviour
         // 発射ガイドを非表示にしておく
         _guideCircle.SetActiveGuideCircle(false);
 
-        nextBobble = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
-        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
-        nextBobble.GetComponent<Bobble>().enabled = false;
+        nextBobbleObj = Instantiate(_bobblePrefab, transform.position, Quaternion.identity) as GameObject;
+        nextBobbleObj.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
+        nextBobbleObj.GetComponent<Bobble>().enabled = false;
 
         // 発射する玉を生成
         Reload();
@@ -155,10 +155,10 @@ public class Cannon : MonoBehaviour
         _guideCircle.SetActiveGuideCircle(false);   // 発射ガイド非表示
 
         // 玉を持っているときだけ発射処理
-        if (haveBobble && shotFlg)
+        if (haveBobbleObj && shotFlg)
         {
-            haveBobble.AddComponent<BobbleMove>().ShotBubble(_bobbleMoveSpeed, shotDirection);    // 玉を発射
-            haveBobble = null;
+            haveBobbleObj.AddComponent<BobbleMove>().ShotBubble(_bobbleMoveSpeed, shotDirection);    // 玉を発射
+            haveBobbleObj = null;
             GameManager.Instance.shootedBobbleMoving = true;
             SoundManager.Instance.PlaySE(SE.CannonFire);
             StartCoroutine(nameof(ReloadBobble));
@@ -210,11 +210,27 @@ public class Cannon : MonoBehaviour
     /// </summary>
     private void Reload()
     {
-        haveBobble = nextBobble;
-        haveBobble.transform.position = transform.position;
-        nextBobble = Instantiate(_bobblePrefab, _nextBobblePosition.position, Quaternion.identity) as GameObject;
-        nextBobble.GetComponent<Bobble>()._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
-        nextBobble.GetComponent<Bobble>().enabled = false;
+        // 前に生成しておいた泡を装填する
+        haveBobbleObj = nextBobbleObj;
+        haveBobbleObj.transform.position = transform.position;
+
+        // 次弾生成
+        nextBobbleObj = Instantiate(_bobblePrefab, _nextBobblePosition.position, Quaternion.identity) as GameObject;
+
+        // 今持ってる泡と生成した泡のコンポーネント取得（何回もGetしたらめんどい）
+        Bobble haveBobbleComp = haveBobbleObj.GetComponent<Bobble>();
+        Bobble nextBobbleComp = nextBobbleObj.GetComponent<Bobble>();
+        
+        // 色をランダムで生成する
+        // もし装填した玉と同じ色なら再抽選する
+        do
+        {
+            nextBobbleComp._BobbleColor = (BobbleColor)Random.Range((int)BobbleColor.Blue, (int)BobbleColor.Yellow + 1);
+
+        } while (nextBobbleComp._BobbleColor == haveBobbleComp._BobbleColor);
+
+        // Bobbleコンポーネントを非アクティブにしておく（自動落下しなくなる）
+        nextBobbleComp.enabled = false;
     }
 
     /// <summary>
@@ -225,13 +241,13 @@ public class Cannon : MonoBehaviour
         if (GameManager.Instance.shootedBobbleMoving) return;
 
         // 位置を入れ替え
-        haveBobble.transform.position = _nextBobblePosition.transform.position;
-        nextBobble.transform.position = transform.position;
+        haveBobbleObj.transform.position = _nextBobblePosition.transform.position;
+        nextBobbleObj.transform.position = transform.position;
 
         // 玉を入れ替え
-        GameObject tmp = nextBobble;
-        nextBobble = haveBobble;
-        haveBobble = tmp;        
+        GameObject tmp = nextBobbleObj;
+        nextBobbleObj = haveBobbleObj;
+        haveBobbleObj = tmp;        
 
         Debug.Log("おされた");
     }
@@ -248,14 +264,6 @@ public class Cannon : MonoBehaviour
         }
         
         Reload();
-    }
-
-    private void OnGUI()
-    {
-        //var sw = Screen.width;
-        //var sh = Screen.height;
-
-        //GUI.Label(new Rect(50, sh - 80, 500, 500), "座標 : " + pos + " " + dbgStr + " " + dbgTouchCount, style);
     }
 
 }

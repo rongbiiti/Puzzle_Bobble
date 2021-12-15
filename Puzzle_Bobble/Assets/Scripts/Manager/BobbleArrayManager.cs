@@ -21,6 +21,16 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     public int BOBBLE_EVEN_SIZE = 10;
 
     /// <summary>
+    /// 同じ行で、同じ色の泡が連続で生成される確率
+    /// </summary>
+    public float PROB_SAME_ROW_BOBBLE_COLOR = 25.0f;
+
+    /// <summary>
+    /// 同じ列で、同じ色の泡が連続で生成される確率
+    /// </summary>
+    public float PROB_SAME_COL_BOBBLE_COLOR = 25.0f;
+
+    /// <summary>
     /// Start時に泡グループを何行分生成するか
     /// </summary>
     [SerializeField] private int _onStartCreateBobbleRow = 23;
@@ -545,7 +555,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         string scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
 
         GameObject text = Instantiate(_pointTextUIPrefab, screenPos, Quaternion.identity) as GameObject;
-        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos);
+        text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos, false);
 
         ScoreManager.Instance.AddNowTurnPointToScore();
 

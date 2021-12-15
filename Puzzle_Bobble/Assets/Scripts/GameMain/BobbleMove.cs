@@ -69,6 +69,7 @@ public class BobbleMove : MonoBehaviour
             hitFlg = true;
 
             rb.bodyType = RigidbodyType2D.Kinematic;
+            //rb.simulated = false;
             rb.velocity = Vector3.zero;
 
             // 当たった泡のBobbleスクリプトを取得

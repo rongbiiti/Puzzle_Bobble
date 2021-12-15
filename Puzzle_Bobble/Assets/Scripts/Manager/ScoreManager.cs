@@ -38,13 +38,7 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     /// </summary>
     private int combo;
     public int Combo {
-        set { combo = value;
-            if (combo > _comboTable.Length - 1)
-            {
-                // コンボ倍率テーブルの要素数を越えないようにする
-                combo = _comboTable.Length - 1;
-            }
-        }
+        set { combo = value; }
         get { return combo; }
     }
 
@@ -85,6 +79,8 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
         get { return nowTurnPoint; }
     }
 
+    
+
     /// <summary>
     /// スコアを加算
     /// </summary>
@@ -101,7 +97,7 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
             }
 
             // 繋がってる泡を削除したときはコンボ数が適用される
-            nowDeletePoint = _basePoint * deleteCombo * _comboTable[combo];
+            nowDeletePoint = _basePoint * deleteCombo * _comboTable[Mathf.Clamp(combo, 0, _comboTable.Length - 1)];
             
         }
         else
@@ -147,6 +143,8 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
         // デバッグ用
         style = new GUIStyle();
         style.fontSize = 50;
+
+        
     }
 
     
