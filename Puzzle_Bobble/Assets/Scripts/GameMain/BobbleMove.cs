@@ -14,10 +14,12 @@ public class BobbleMove : MonoBehaviour
     private Vector3 lastVelocity;
     private Bobble myBobble;
     private Rigidbody2D rb;
+    private float startColliderRadius;
 
     void Start()
     {
         myBobble = GetComponent<Bobble>();
+        
     }
 
     private void FixedUpdate()
@@ -30,11 +32,6 @@ public class BobbleMove : MonoBehaviour
         }
         lastVelocity = rb.velocity;
         prePosition = transform.position;
-    }
-
-    void Update()
-    {
-        
     }
 
     /// <summary>
@@ -51,23 +48,29 @@ public class BobbleMove : MonoBehaviour
         moveDirection = direction;
         rb.AddForce(moveDirection * moveSpeed, ForceMode2D.Impulse);
         moveFlg = true;
+        startColliderRadius = GetComponent<CircleCollider2D>().radius;
+        GetComponent<CircleCollider2D>().radius = 0.4f;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        // 壁に当たったら正反射させる
+        
         if (collision.gameObject.CompareTag("Wall"))
         {
+            // 壁に当たったら正反射させる
             moveDirection = Vector3.Reflect(moveDirection, transform.right);
             rb.velocity = Vector3.Reflect(lastVelocity, collision.contacts[0].normal);
             SoundManager.Instance.PlaySE(SE.WallReflect);
         }
         else
         {
+            // 泡に当たったとき
+
             // １フレームで２回処理させないように
             if (hitFlg) return;
             hitFlg = true;
 
+            // Rigidbodyタイプをキネマティックに変更（元はダイナミック）、物理挙動をさせないようにする
             rb.bodyType = RigidbodyType2D.Kinematic;
             //rb.simulated = false;
             rb.velocity = Vector3.zero;
@@ -82,14 +85,7 @@ public class BobbleMove : MonoBehaviour
             float newY = 0;
             int newIY = hitIY;
 
-            // 泡の上下真ん中どれに当たったか見て、Y座標を泡の縦幅分ずらす
-            if(collision.transform.position.y + bobbleHeightSize / 2 <= transform.position.y)
-            {
-                // 上側
-                newY = bobbleHeightSize;
-                newIY--;
-            }
-            else if (transform.position.y <= collision.transform.position.y - bobbleHeightSize / 4)
+            if (prePosition.y <= collision.transform.position.y - bobbleHeightSize / 2)
             {
                 // 下側
                 newY = -bobbleHeightSize;
@@ -100,7 +96,7 @@ public class BobbleMove : MonoBehaviour
             int newIX = hitIX;
 
             // 泡の左右どちら側に当たったか見て、X座標を泡の横幅の半分のサイズ分ずらす
-            if (transform.position.x <= collision.transform.position.x)
+            if (prePosition.x <= collision.transform.position.x)
             {
                 // 左側
                 newX = -bobbleWidthSize / 2;
@@ -162,6 +158,8 @@ public class BobbleMove : MonoBehaviour
             SoundManager.Instance.PlaySE(SE.BobbleSeted);
 
             BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble._BobbleColor);
+
+            GetComponent<CircleCollider2D>().radius = startColliderRadius;
 
             // 停止させる
             Destroy(GetComponent<BobbleMove>());
