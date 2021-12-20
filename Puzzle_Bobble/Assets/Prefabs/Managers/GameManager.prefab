@@ -15,7 +15,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 4294967295
   m_IsActive: 1
 --- !u!4 &4899265044288435576
 Transform:
@@ -43,7 +43,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1db7dac009fcccd408d2a92365f3339d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _gameOverTextPrefab: {fileID: 0}
   _gameOverPanel: {fileID: 0}
   shootedBobbleMoving: 0
   isBobbleDeleting: 0
   isBobbleFalloutGameOverZone: 0
+  gameSpeed: 1

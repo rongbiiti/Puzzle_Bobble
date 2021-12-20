@@ -161,6 +161,9 @@ public class BobbleMove : MonoBehaviour
 
             GetComponent<CircleCollider2D>().radius = startColliderRadius;
 
+            lastVelocity = rb.velocity;
+            prePosition = transform.position;
+
             // í‚é~Ç≥ÇπÇÈ
             Destroy(GetComponent<BobbleMove>());
         }

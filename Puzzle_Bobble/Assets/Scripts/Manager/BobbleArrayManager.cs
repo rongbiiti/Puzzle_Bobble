@@ -104,24 +104,25 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             bg.ChangeRowNum(bg.rowNum + 2);
         }
 
+        // 一番下の列の泡グループオブジェクトを削除
         Destroy(bobbleGroups[bobbleGroups.Count - 1].gameObject);
         Destroy(bobbleGroups[bobbleGroups.Count - 2].gameObject);
 
-        //bobbles.RemoveRange(bobbles.Count - 2, 2);
-
+        // Listからも削除
         bobbles.RemoveAt(bobbles.Count - 1);
         bobbles.RemoveAt(bobbles.Count - 1);
-
         bobbleGroups.RemoveAt(bobbleGroups.Count - 1);
         bobbleGroups.RemoveAt(bobbleGroups.Count - 1);
-        //bobbleGroups.RemoveRange(bobbleGroups.Count - 2, 2);
 
+        // 新しい空のListを追加
         bobbles.Insert(0, new List<BobbleColor>());
         bobbles.Insert(0, new List<BobbleColor>());
 
+        // 新しい泡グループを生成！
         CreateBobbleGroupObject(1);
         CreateBobbleGroupObject(0);
 
+        // Listの状態をDebug.Log出力
         int y = 0;
         foreach(var b in bobbles)
         {
@@ -148,9 +149,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         // 泡グループのBobbleGroupコンポーネントに行番号を設定
         BobbleGroup bobbleGroup = bobbleG.GetComponent<BobbleGroup>();
-
         bobbleGroup.rowNum = rowNum;
 
+        // 泡グループの列が画面下半分に当たるものなら、泡を生成させない（Start時に生成する用）
         if(rowNum <= _onStartCreateBobbleRow - 1)
         {
             bobbleGroup.CreateChiledBobbles();
@@ -163,8 +164,6 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // オブジェクトをListに追加
         bobbleGroups.Insert(0, bobbleG.GetComponent<BobbleGroup>());
 
-        //bobbles[rowNum].Clear();
-
         // 偶数と奇数でサイズが違うので分ける
         if (rowNum % 2 == 0)
         {
@@ -172,9 +171,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             for (int j = 0; j < BOBBLE_EVEN_SIZE; j++)
             {
                 // 配列に泡の情報を追加
-                //bobbles[rowNum] = bobbleGroup.bobbleColors;
                 bobbles[rowNum].Insert(j, bobbleGroup.bobbleColors[j]);
-
             }
 
         }
@@ -183,18 +180,13 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             // 奇数
             for (int j = 0; j < BOBBLE_EVEN_SIZE - 1; j++)
             {
-                //bobbles[rowNum] = bobbleGroup.bobbleColors;
                 bobbles[rowNum].Insert(j, bobbleGroup.bobbleColors[j]);
             }
 
         }
 
-        //bobbles.Insert(rowNum, bobbleGroup.bobbleColors);
-
         // 作業用配列に記録しておく
-        //workBobbles = bobbles;
         Debug.Log(string.Join(", ", bobbles[rowNum].Select(obj => obj.ToString())));
-        //workBobbles = bobbles.DeepCopy();
         
     }
 
@@ -212,14 +204,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 // 管理配列の情報を更新
                 g.bobbles[x] = bobbleComponent;
                 g.bobbleColors[x] = color;
-                //g.bobbleColors.Insert(x, color);
-                //bobbles[y] = g.bobbleColors;
                 BobbleColor tmp = g.bobbleColors[x];
                 bobbles[y][x] = tmp;
-
-                //bobbles[y].RemoveAt(x);
-                //bobbles[y].Insert(x, g.bobbleColors[x]);
-                //bobbles.Insert(y, g.bobbleColors);
 
                 Debug.Log(bobbleComponent.name + "は" + g.name + "の子要素になった。 色 : " + color);
 
@@ -292,8 +278,10 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             Debug.Log("泡は3つ以上繋がっていなかった");
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
+
             bobbles = workBobbles.DeepCopy();
             ScoreManager.Instance.Combo = 0;
+
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
 
@@ -499,7 +487,6 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 else
                 {
                     // マークされていたら、マーク前の状態に戻す
-                    //bobbles[y][x] = workBobbles[y][x];
                     BobbleColor tmp = workBobbles[y][x];
                     bobbles[y][x] = tmp;
                 }
@@ -527,14 +514,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 泡を削除
         BobbleDelete(x, y);
 
-        // カメラを揺らす
-        //if (ScoreManager.Instance.DeleteCombo >= 6)
-        //{
-            //FindObjectOfType<CameraShake>().Shake(0.15f, 0.1f);
-        //}
-
         // 削除アニメクリップの長さ分待つ
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.0334f * (ScoreManager.Instance.DeleteCombo + 5));
         yield return new WaitForEndOfFrame();
 
         // 浮いた泡を削除        
@@ -550,6 +531,9 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         yield return new WaitForSeconds(0.25f);
         yield return new WaitForEndOfFrame();
 
+        yield return new WaitForSeconds(0.125f);
+        yield return new WaitForEndOfFrame();
+
         // スクリーン座標計算
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
         string scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
@@ -559,7 +543,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         ScoreManager.Instance.AddNowTurnPointToScore();
 
-        yield return new WaitForSeconds(0.25f);
+        yield return new WaitForSeconds(0.125f);
         yield return new WaitForEndOfFrame();
 
         // 削除演出中フラグを折る

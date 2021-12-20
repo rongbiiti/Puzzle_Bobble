@@ -41,6 +41,7 @@ public class Cannon : MonoBehaviour
 
     private GameObject haveBobbleObj;      // 大砲にセットされている玉
     private bool shotFlg;               // 発射可能フラグ
+    private bool isShotBobbleChanging;  // 玉交換アニメ中か
     private Vector3 shotDirection;      // 玉を発射する方向
 
     private GameObject nextBobbleObj;      // 次に大砲にセットする玉
@@ -251,6 +252,7 @@ public class Cannon : MonoBehaviour
 
         Debug.Log("おされた");
     }
+
 
     /// <summary>
     /// 少し間をおいて玉を生成
