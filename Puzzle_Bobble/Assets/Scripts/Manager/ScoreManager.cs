@@ -34,6 +34,14 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     [SerializeField] private int[] _comboTable;
 
     /// <summary>
+    /// デンジャータイム中のスコアボーナス倍率
+    /// </summary>
+    [SerializeField] private float _dangerTimeScoreBonusRate = 1.5f;
+    public float DangerTimeScoreBonusRate {
+        get { return _dangerTimeScoreBonusRate; }
+    }
+
+    /// <summary>
     /// コンボ数
     /// </summary>
     private int combo;
@@ -122,6 +130,12 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
     /// </summary>
     public void AddNowTurnPointToScore()
     {
+        // デンジャータイム中ならスコア倍率適用
+        if (GameManager.Instance.isDangerTime)
+        {
+            nowTurnPoint = (int)(nowTurnPoint * _dangerTimeScoreBonusRate);
+        }
+
         score += nowTurnPoint;
     }
 

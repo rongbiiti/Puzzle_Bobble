@@ -42,6 +42,7 @@ public class Cannon : MonoBehaviour
     private GameObject haveBobbleObj;      // 大砲にセットされている玉
     private bool shotFlg;               // 発射可能フラグ
     private bool isShotBobbleChanging;  // 玉交換アニメ中か
+    private bool isShotGuideActive;     // 発射ガイド表示中か
     private Vector3 shotDirection;      // 玉を発射する方向
 
     private GameObject nextBobbleObj;      // 次に大砲にセットする玉
@@ -139,7 +140,10 @@ public class Cannon : MonoBehaviour
     /// </summary>
     private void OnTouchBegan(Vector3 touchPosition)
     {
+        if (GameManager.Instance.shootedBobbleMoving) return;
+
         _guideCircle.SetActiveGuideCircle(true);    // 発射ガイド表示
+        isShotGuideActive = true;
         SoundManager.Instance.PlaySE(SE.CannonAiming);
 
         // 以下デバッグ用
@@ -153,7 +157,10 @@ public class Cannon : MonoBehaviour
     /// </summary>
     private void OnTouchEnded(Vector3 touchPosition)
     {
+        if (GameManager.Instance.shootedBobbleMoving) return;
+
         _guideCircle.SetActiveGuideCircle(false);   // 発射ガイド非表示
+        isShotGuideActive = false;
 
         // 玉を持っているときだけ発射処理
         if (haveBobbleObj && shotFlg)
@@ -176,6 +183,15 @@ public class Cannon : MonoBehaviour
     /// </summary>
     private void OnTouchHold(Vector3 touchPosition)
     {
+        if (GameManager.Instance.shootedBobbleMoving) return;
+
+        // 発射ガイドが表示されてなかったら、表示する
+        if (!isShotGuideActive)
+        {
+            _guideCircle.SetActiveGuideCircle(true);    // 発射ガイド表示
+            isShotGuideActive = true;
+        }
+
         touchPosition.z = transform.position.z; // Z座標を揃える
 
         Vector3 dir = (touchPosition - transform.position).normalized;  // ベクトルから方向情報を取り出す

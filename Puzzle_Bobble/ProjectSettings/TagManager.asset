@@ -7,6 +7,10 @@ TagManager:
   - Wall
   - GameOverZone
   - Bobble
+  - MovingBobble
+  - FallingBobble
+  - BobbleFallSpeedUpZone
+  - DangerZone
   layers:
   - Default
   - TransparentFX

@@ -18,6 +18,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         return _gameOverPanel;
     }
 
+    // 落下速度上昇ゾーンに入った泡の数
+    public int fallSpeedUpZoneContactCount;
+
+    // デンジャーゾーンに入った泡の数
+    public int dangerZoneContactCount;
+
     // 撃った玉が移動中か
     public bool shootedBobbleMoving;
 
@@ -26,6 +32,9 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
     // 泡がゲームオーバーゾーンまで落ち切ったか
     public bool isBobbleFalloutGameOverZone;
+
+    // 泡がもうすぐゲームオーバーゾーンに達しそうな「デンジャータイム中」か
+    public bool isDangerTime;
 
     // ゲームスピード
     public float gameSpeed = 1f;
@@ -55,7 +64,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     /// </summary>
     public void GameOver()
     {
-        
         // ゲームオーバーのUIをアクティブにする
         _gameOverPanel.SetActive(true);
     }

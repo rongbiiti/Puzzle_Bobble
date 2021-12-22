@@ -524,25 +524,44 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // カメラを揺らす
         if (ScoreManager.Instance.FallCombo >= 6)
         {
+            // 一瞬timeScaleを下げて、ヒットストップみたいな演出をさせる
+            Time.timeScale = 0.4f;
             FindObjectOfType<CameraShake>().Shake(0.25f, 0.07f);
-        }
+
+            // timeScale元に戻す
+            yield return new WaitForSeconds(0.2f);
+            Time.timeScale = 1f;
+        }        
 
         // 削除アニメクリップの長さ分待つ
-        yield return new WaitForSeconds(0.25f);
-        yield return new WaitForEndOfFrame();
-
-        yield return new WaitForSeconds(0.125f);
+        yield return new WaitForSeconds(0.25f + 0.125f);
         yield return new WaitForEndOfFrame();
 
         // スクリーン座標計算
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
+
+        // 表示するテキスト
         string scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
 
+        // デンジャータイム中なら、ボーナスが適用されたこと伝える文章を追加する
+        if (GameManager.Instance.isDangerTime)
+        {
+            scoreText = scoreText + " × DangerBonus " + ScoreManager.Instance.DangerTimeScoreBonusRate + " = " + (ScoreManager.Instance.NowTurnPoint * ScoreManager.Instance.DangerTimeScoreBonusRate).ToString("N0") + "!!";
+        }
+
+        // ポイントの合計をスコア表示の下に +〇〇 と表示
         GameObject text = Instantiate(_pointTextUIPrefab, screenPos, Quaternion.identity) as GameObject;
         text.GetComponent<DeletePointText>().SetDeletePointText(scoreText, screenPos, false);
 
+        // 1ショットで稼いだポイントの合計をスコアに加算
         ScoreManager.Instance.AddNowTurnPointToScore();
 
+        if (GameManager.Instance.isDangerTime)
+        {
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        // 少し待つ
         yield return new WaitForSeconds(0.125f);
         yield return new WaitForEndOfFrame();
 

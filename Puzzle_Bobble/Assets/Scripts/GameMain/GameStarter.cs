@@ -42,6 +42,7 @@ public class GameStarter : MonoBehaviour
         GameManager.Instance.isBobbleFalloutGameOverZone = false;
         FindObjectOfType<GameOverZone>().enabled = true;
         FindObjectOfType<PauseButton>().GetComponent<Button>().interactable = true;
+        FindObjectOfType<DangerZone>().enabled = true;
 
     }
 }

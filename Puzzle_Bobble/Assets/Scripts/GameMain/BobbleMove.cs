@@ -19,7 +19,7 @@ public class BobbleMove : MonoBehaviour
     void Start()
     {
         myBobble = GetComponent<Bobble>();
-        
+        transform.tag = "MovingBobble";
     }
 
     private void FixedUpdate()
@@ -163,6 +163,7 @@ public class BobbleMove : MonoBehaviour
 
             lastVelocity = rb.velocity;
             prePosition = transform.position;
+            transform.tag = "Bobble";
 
             // í‚é~Ç≥ÇπÇÈ
             Destroy(GetComponent<BobbleMove>());

@@ -84,6 +84,8 @@ public class Bobble : MonoBehaviour
     private OverrideSprite overrideSprite;   // OverrideSpriteコンポーネント
     private Animator animator;
     private bool isDisconnectFall;           // 天井と繋がれなくなり、自然落下状態か
+    private bool isEnterFallSpeedUpZone;     // 落下速度上昇ゾーンにいるか
+    private bool isEnterDangerZone;          // デンジャーゾーンにいるか
 
     public BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
@@ -208,8 +210,47 @@ public class Bobble : MonoBehaviour
             yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
         }
 
+        // 落下速度上昇ゾーンに入っている状態で消滅したら、カウントを減らす
+        if (isEnterFallSpeedUpZone)
+        {
+            GameManager.Instance.fallSpeedUpZoneContactCount--;
+        }
+
+        // デンジャーゾーンに入っている状態で消滅したら、カウントを減らす
+        if (isEnterDangerZone)
+        {
+            GameManager.Instance.dangerZoneContactCount--;
+        }
+
         Destroy(gameObject);
-        //Destroy(text);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("BobbleFallSpeedUpZone") && !isDisconnectFall)
+        {
+            isEnterFallSpeedUpZone = true;
+            GameManager.Instance.fallSpeedUpZoneContactCount++;
+        }
+        else if (collision.CompareTag("DangerZone") && enabled)
+        {
+            isEnterDangerZone = true;
+            GameManager.Instance.dangerZoneContactCount++;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("BobbleFallSpeedUpZone") && !isDisconnectFall)
+        {
+            isEnterFallSpeedUpZone = false;
+            GameManager.Instance.fallSpeedUpZoneContactCount--;
+        }
+        else if (collision.CompareTag("DangerZone") && enabled)
+        {
+            isEnterDangerZone = false;
+            GameManager.Instance.dangerZoneContactCount--;
+        }
     }
 
     /// <summary>
