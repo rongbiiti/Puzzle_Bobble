@@ -266,7 +266,7 @@ public class Cannon : MonoBehaviour
         nextBobbleObj = haveBobbleObj;
         haveBobbleObj = tmp;        
 
-        Debug.Log("‚¨‚³‚ê‚½");
+        //Debug.Log("‚¨‚³‚ê‚½");
     }
 
 

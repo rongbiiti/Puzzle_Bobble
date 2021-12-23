@@ -21,10 +21,8 @@ public class BobbleFallSpeedControll : MonoBehaviour
     [SerializeField] private float _speedUpDelay = 2f;
 
     private GameManager gm;     // GameManagerのインスタンス
-    private int preContactCount;    // 前のフレームのGameManagerのfallSpeedUpZoneContactCount
-    private int contactCount;   // このオブジェクトのトリガー範囲と接触している泡の個数
     private bool isStartedSpeedUpCoroutine; // コルーチンを呼び出したか
-    private float startFallSpeed;
+    private float startFallSpeed;   // 開始時の落下速度
 
     private void Start()
     {   
@@ -34,55 +32,50 @@ public class BobbleFallSpeedControll : MonoBehaviour
 
     private void LateUpdate()
     {
-        // 前フレームとContactCountが違っていて、
-        // ContactCountが0以下で、
-        // コルーチンを呼び出していなかったら
-        if(preContactCount != gm.fallSpeedUpZoneContactCount && gm.fallSpeedUpZoneContactCount <= 0 && !isStartedSpeedUpCoroutine)
+        // gm.fallSpeedUpZoneContactCountが0以下で、
+        // コルーチンをまだ呼び出していなくて
+        // 削除演出が終わっていたら
+        if (gm.fallSpeedUpZoneContactCount <= 0 && !isStartedSpeedUpCoroutine && !GameManager.Instance.isBobbleDeleting)
         {
             // 落下速度上昇のコルーチンを呼ぶ
             isStartedSpeedUpCoroutine = true;
             StartCoroutine(nameof(FallSpeedUp));
         }
 
-        preContactCount = gm.fallSpeedUpZoneContactCount;
     }
 
+    // このトリガーに泡が入ったらカウントを増やす
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Bobble"))
         {
-            //contactCount++;
-        }
-    }
+            gm.fallSpeedUpZoneContactCount++;
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Bobble"))
-        {
-            //contactCount--;
-        }
-
-        if(contactCount <= 0 && !isStartedSpeedUpCoroutine)
-        {
-            //isStartedSpeedUpCoroutine = true;
-            //StartCoroutine(nameof(FallSpeedUp));
+            // ※カウントは、泡の削除処理で0にリセットされる。
         }
     }
 
     // 泡の落下速度を上げる
     private IEnumerator FallSpeedUp()
     {
+        // 泡が動き出した瞬間から一拍置く
         yield return new WaitForSeconds(_speedUpDelay);
 
-        if(contactCount <= 0)
+        // 落下速度上昇判定ゾーンに泡が入っていなければ、落下速度を上げる
+        if(gm.fallSpeedUpZoneContactCount <= 0)
         {
             GameManager.Instance.gameSpeed = _SpeedUpFallSpeed;
             yield return new WaitForSeconds(_bobbleFallSpeedUpTime);
         }
-
+        
+        // 落下速度を戻す
         GameManager.Instance.gameSpeed = startFallSpeed;
+
+        // このコルーチンが再び呼べるようにする
         isStartedSpeedUpCoroutine = false;
     }
+
+
 
     
 }

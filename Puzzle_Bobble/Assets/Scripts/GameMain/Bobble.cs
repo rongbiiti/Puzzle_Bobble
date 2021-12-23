@@ -82,10 +82,9 @@ public class Bobble : MonoBehaviour
 
     private SpriteRenderer sprRenderer;      // 自身にアタッチされているSpriteRendererコンポーネント
     private OverrideSprite overrideSprite;   // OverrideSpriteコンポーネント
-    private Animator animator;
+    private CircleCollider2D circleCollider;    // CircleCollider2Dコンポーネント
+    private Animator animator;               // Animatorコンポーネント
     private bool isDisconnectFall;           // 天井と繋がれなくなり、自然落下状態か
-    private bool isEnterFallSpeedUpZone;     // 落下速度上昇ゾーンにいるか
-    private bool isEnterDangerZone;          // デンジャーゾーンにいるか
 
     public BobbleNumber bobbleNumber = new BobbleNumber(); // 行と列番号
 
@@ -93,6 +92,7 @@ public class Bobble : MonoBehaviour
     {
         sprRenderer = GetComponent<SpriteRenderer>();       // SpriteRenderer取得
         overrideSprite = GetComponent<OverrideSprite>();    // OverrideSprite取得
+        circleCollider = GetComponent<CircleCollider2D>();  // CircleCollider2D取得
         animator = GetComponent<Animator>();                // Animator取得
 
         // inspectorで指定した_bobbleColorに対応するスプライトに変更する
@@ -106,7 +106,7 @@ public class Bobble : MonoBehaviour
     void Update()
     {
         // 泡がまだゲームオーバーゾーンに達していなければ、じわじわと落ちていく
-        if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting && !isDisconnectFall)
+        if (!GameManager.Instance.isBobbleFalloutGameOverZone && !GameManager.Instance.isBobbleDeleting && !isDisconnectFall && !GameManager.Instance.shootedBobbleMoving)
         {
             transform.Translate(-transform.up * 0.001f * GameManager.Instance.gameSpeed);
 
@@ -131,6 +131,10 @@ public class Bobble : MonoBehaviour
         bobbleNumber.y = col;
     }
 
+    /// <summary>
+    /// 行と列番号の入った構造体を返す
+    /// </summary>
+    /// <returns></returns>
     public BobbleNumber GetNumber()
     {
         return bobbleNumber;
@@ -154,7 +158,12 @@ public class Bobble : MonoBehaviour
         StartCoroutine(SelfDestroyProcess(isFall, delay));
     }
 
-    // 破壊処理コルーチン
+    /// <summary>
+    /// 破壊処理コルーチン
+    /// </summary>
+    /// <param name="isFall">落ちる泡か</param>
+    /// <param name="delay">何秒遅れて消すか</param>
+    /// <returns></returns>
     private IEnumerator SelfDestroyProcess(bool isFall, float delay)
     {
         // スクリーン座標計算
@@ -163,6 +172,7 @@ public class Bobble : MonoBehaviour
         // この泡の得点
         string scoreText = ScoreManager.Instance.NowDeletePoint.ToString("N0");
 
+        // 連鎖して消滅する演出のため、消えるタイミングまで待機する
         yield return new WaitForSeconds(delay);
 
         // 泡の位置にポイント表示
@@ -191,7 +201,7 @@ public class Bobble : MonoBehaviour
             rb.AddForce(new Vector2(vecX, 1.5f) * UnityEngine.Random.Range(0.75f, 1.5f), ForceMode2D.Impulse);
 
             //当たり判定オフ
-            GetComponent<CircleCollider2D>().enabled = false;
+            circleCollider.enabled = false;
 
             // エフェクト
             Instantiate(_fallEffect, transform.position, Quaternion.identity);
@@ -210,47 +220,7 @@ public class Bobble : MonoBehaviour
             yield return new WaitForSeconds(0.5f);  // アニメクリップの長さ分待つ
         }
 
-        // 落下速度上昇ゾーンに入っている状態で消滅したら、カウントを減らす
-        if (isEnterFallSpeedUpZone)
-        {
-            GameManager.Instance.fallSpeedUpZoneContactCount--;
-        }
-
-        // デンジャーゾーンに入っている状態で消滅したら、カウントを減らす
-        if (isEnterDangerZone)
-        {
-            GameManager.Instance.dangerZoneContactCount--;
-        }
-
         Destroy(gameObject);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("BobbleFallSpeedUpZone") && !isDisconnectFall)
-        {
-            isEnterFallSpeedUpZone = true;
-            GameManager.Instance.fallSpeedUpZoneContactCount++;
-        }
-        else if (collision.CompareTag("DangerZone") && enabled)
-        {
-            isEnterDangerZone = true;
-            GameManager.Instance.dangerZoneContactCount++;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("BobbleFallSpeedUpZone") && !isDisconnectFall)
-        {
-            isEnterFallSpeedUpZone = false;
-            GameManager.Instance.fallSpeedUpZoneContactCount--;
-        }
-        else if (collision.CompareTag("DangerZone") && enabled)
-        {
-            isEnterDangerZone = false;
-            GameManager.Instance.dangerZoneContactCount--;
-        }
     }
 
     /// <summary>

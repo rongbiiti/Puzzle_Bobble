@@ -139,14 +139,9 @@ public class BobbleGroup : MonoBehaviour
     /// <param name="x"></param>
     public void DestroyChildBobble(int x, bool isFall, float delay)
     {
-        //Destroy(bobbles[x].gameObject);     // オブジェクト破壊
         bobbles[x].BobbleDestroy(isFall, delay);
-        //bobbles.Insert(x, null);             // 配列の中もnullにする
         bobbles[x] = null;
         bobbleColors[x] = BobbleColor.None; // 色を記憶してる配列の中もNoneに変える
-        //bobbleColors.Insert(x, BobbleColor.None);
-        childBobbleCount--;
-
-        
+        childBobbleCount--;        
     }
 }

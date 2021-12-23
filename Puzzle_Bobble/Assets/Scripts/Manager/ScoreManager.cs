@@ -156,10 +156,8 @@ public class ScoreManager : SingletonMonoBehaviour<ScoreManager>
 
         // デバッグ用
         style = new GUIStyle();
-        style.fontSize = 50;
-
-        
+        style.fontSize = 50;        
     }
 
-    
+
 }

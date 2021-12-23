@@ -4,34 +4,29 @@ using UnityEngine;
 
 public class BobbleMove : MonoBehaviour
 {
-    [HideInInspector] public float moveSpeed = 2f;    // 玉の速度
     [HideInInspector] public Vector3 moveDirection;   // 玉の進行方向
     private Vector3 prePosition;                      // 前フレームでの位置
-    private bool moveFlg;           // これがtrueのときに移動処理をさせる
     private bool hitFlg;            // これがfalseのときだけヒット後の処理
     private float bobbleHeightSize = 0.52f;           // 泡１個の縦幅
     private float bobbleWidthSize = 0.56f;            // 泡１個の横幅
-    private Vector3 lastVelocity;
-    private Bobble myBobble;
-    private Rigidbody2D rb;
-    private float startColliderRadius;
-
-    void Start()
-    {
-        myBobble = GetComponent<Bobble>();
-        transform.tag = "MovingBobble";
-    }
+    private Vector3 lastVelocity;                     // 前フレームのvelocity
+    private Bobble myBobble;                          // Bobbleコンポーネント
+    private Rigidbody2D rb;                           // Rigidbody2Dコンポーネント
+    private CircleCollider2D circleCollider;          // CircleColliderコンポーネント
+    private float startColliderRadius;                // 生成時のコライダーのRadius
+    private float destroyWaitTime;                    // この秒数を超えて存在していたら削除
 
     private void FixedUpdate()
     {
-        // フラグが立っている時だけ移動処理をさせる
-        if (moveFlg)
-        {
-            //transform.Translate(moveDirection * moveSpeed);
-            
-        }
         lastVelocity = rb.velocity;
         prePosition = transform.position;
+
+        destroyWaitTime += Time.deltaTime;
+        if(10f < destroyWaitTime)
+        {
+            GameManager.Instance.shootedBobbleMoving = false;
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>
@@ -41,15 +36,24 @@ public class BobbleMove : MonoBehaviour
     /// <param name="direction">玉の進行方向</param>
     public void ShotBubble(float speed, Vector3 direction)
     {
+        // 物理挙動で動かす
         rb = GetComponent<Rigidbody2D>();
         rb.bodyType = RigidbodyType2D.Dynamic;
         rb.gravityScale = 0f;
-        moveSpeed = speed;
+        rb.AddForce(direction * speed, ForceMode2D.Impulse);
         moveDirection = direction;
-        rb.AddForce(moveDirection * moveSpeed, ForceMode2D.Impulse);
-        moveFlg = true;
-        startColliderRadius = GetComponent<CircleCollider2D>().radius;
-        GetComponent<CircleCollider2D>().radius = 0.4f;
+        
+        circleCollider = GetComponent<CircleCollider2D>();
+
+        // 移動中は隙間を通れるよう当たり判定を小さくする
+        startColliderRadius = circleCollider.radius;
+        circleCollider.radius = 0.4f;
+
+        // Bobbleコンポーネント取得
+        myBobble = GetComponent<Bobble>();
+
+        // 移動中はタグを変えておく
+        transform.tag = "MovingBobble";
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -80,10 +84,10 @@ public class BobbleMove : MonoBehaviour
             int hitIX = hitBobble.GetNumber().x;
             int hitIY = hitBobble.GetNumber().y;
 
-            Debug.Log("X : " + hitIX + " Y : " + hitIY);
+            //Debug.Log("X : " + hitIX + " Y : " + hitIY);
 
-            float newY = 0;
-            int newIY = hitIY;
+            float newY = 0;     // Y座標
+            int newIY = hitIY;  // 行番号
 
             if (prePosition.y <= collision.transform.position.y - bobbleHeightSize / 2)
             {
@@ -92,8 +96,8 @@ public class BobbleMove : MonoBehaviour
                 newIY++;
             }
 
-            float newX = 0;
-            int newIX = hitIX;
+            float newX = 0;     // X座標
+            int newIX = hitIX;  // 列番号
 
             // 泡の左右どちら側に当たったか見て、X座標を泡の横幅の半分のサイズ分ずらす
             if (prePosition.x <= collision.transform.position.x)
@@ -150,19 +154,25 @@ public class BobbleMove : MonoBehaviour
             GameManager.Instance.shootedBobbleMoving = false;
             myBobble.enabled = true;
 
+            // 行と列番号確定
             myBobble.bobbleNumber.x = newIX;
             myBobble.bobbleNumber.y = newIY;
 
+            // 泡グループの子になる
             transform.parent = BobbleArrayManager.Instance.GetSameRowBobbleGroup(newIX, newIY, myBobble._BobbleColor, myBobble);
 
+            // 音再生
             SoundManager.Instance.PlaySE(SE.BobbleSeted);
 
+            // 泡が消せるかチェックさせる
             BobbleArrayManager.Instance.BobbleDeleteCheck(newIX, newIY, myBobble._BobbleColor);
 
-            GetComponent<CircleCollider2D>().radius = startColliderRadius;
+            // 当たり判定を元に戻す
+            circleCollider.radius = startColliderRadius;
 
             lastVelocity = rb.velocity;
-            prePosition = transform.position;
+
+            // タグを戻す
             transform.tag = "Bobble";
 
             // 停止させる

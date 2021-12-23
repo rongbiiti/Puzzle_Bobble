@@ -49,11 +49,12 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     /// </summary>
     [SerializeField] private GameObject _pointTextUIPrefab;
 
-    private float bobbleCreateStartPosY = 9.52f;        // 一番最初に生成する泡グループのY座標
-    private float bobbleCreateIncreaseYPos = 0.52f;      // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
+    private float bobbleCreateStartPosY = 9.52f;            // 一番最初に生成する泡グループのY座標
+    private float bobbleCreateIncreaseYPos = 0.52f;         // 2個目以降の泡グループ生成時にこの値分Y座標を上にずらして生成
     private float nextBobbleGroupCreateWaitTime = 1060 * 0.0167f; // 次の泡グループ生成までの待機時間
-    private float waitTime;
-
+    private float bobbleCreateWaitTime;                     // 次の泡生成までの待機時間
+    private BoxCollider2D fallSpeedZoneCollider;            // 泡の落下速度上昇判定ゾーンのコライダー
+    private BoxCollider2D dangerZoneCollider;               // デンジャーゾーンのコライダー
 
     void Start()
     {
@@ -73,6 +74,8 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         SoundManager.Instance.PlayBGM(BGM.Main);
 
+        fallSpeedZoneCollider = FindObjectOfType<BobbleFallSpeedControll>().GetComponent<BoxCollider2D>();
+        dangerZoneCollider = FindObjectOfType<DangerZone>().GetComponent<BoxCollider2D>();
     }
 
     private void Update()
@@ -83,14 +86,17 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 泡の削除演出中
         if (GameManager.Instance.isBobbleDeleting) return;
 
+        // 発射した玉移動中
+        if (GameManager.Instance.shootedBobbleMoving) return;
+
         // 泡生成待機時間を加算
-        waitTime += Time.deltaTime * GameManager.Instance.gameSpeed;
+        bobbleCreateWaitTime += Time.deltaTime * GameManager.Instance.gameSpeed;
 
         // 待機時間を越えたら泡を生成
-        if(nextBobbleGroupCreateWaitTime <= waitTime)
+        if(nextBobbleGroupCreateWaitTime <= bobbleCreateWaitTime)
         {
             AddNewBobbleGroup();
-            waitTime = 0;
+            bobbleCreateWaitTime = 0;
         }
     }
 
@@ -126,11 +132,11 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         int y = 0;
         foreach(var b in bobbles)
         {
-            Debug.Log(y++ + string.Join(", ", b.Select(obj => obj.ToString())));
+            //Debug.Log(y++ + string.Join(", ", b.Select(obj => obj.ToString())));
         }
 
-        Debug.Log("bobblesの数 : " + y);
-        Debug.Log("bobbleGroupsの数 : " + bobbleGroups.Count);
+        //Debug.Log("bobblesの数 : " + y);
+        //Debug.Log("bobbleGroupsの数 : " + bobbleGroups.Count);
 
     }
 
@@ -141,7 +147,6 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
     private void CreateBobbleGroupObject(int rowNum)
     {
         // 泡グループのオブジェクトを生成
-        // 今はとりあえず偶数か奇数かだけ
         GameObject bobbleG = Instantiate(_bobbleGroupPrefab[rowNum % 2]);
 
         // 生成する位置のY座標を前に生成したものと重ならないように調整
@@ -186,7 +191,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         }
 
         // 作業用配列に記録しておく
-        Debug.Log(string.Join(", ", bobbles[rowNum].Select(obj => obj.ToString())));
+        //Debug.Log(string.Join(", ", bobbles[rowNum].Select(obj => obj.ToString())));
         
     }
 
@@ -207,7 +212,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                 BobbleColor tmp = g.bobbleColors[x];
                 bobbles[y][x] = tmp;
 
-                Debug.Log(bobbleComponent.name + "は" + g.name + "の子要素になった。 色 : " + color);
+                //Debug.Log(bobbleComponent.name + "は" + g.name + "の子要素になった。 色 : " + color);
 
                 return g.transform;
             }
@@ -231,7 +236,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 3つ以上繋がってなかったときにマークをリセットできるように、配列を保存しておく
         workBobbles = bobbles.DeepCopy();
 
-        Debug.Log(string.Join(", ", bobbles[y - 1].Select(obj => obj.ToString())));
+        //Debug.Log(string.Join(", ", bobbles[y - 1].Select(obj => obj.ToString())));
 
         // ポーズできないようにする
         Pauser.isCanPausing = false;
@@ -239,7 +244,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 発射した玉とヒットした泡の色が同じか
         if (bobbles[y][x] == color)
         {
-            Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
+            //Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
 
             // 玉と同じ色だったので、繋がっているものをマークしていく。
             FloodFill(x, y, color, ref deleteCount);
@@ -250,6 +255,16 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             {
                 // 3つ以上繋がっていたので、削除作業
                 GameManager.Instance.isBobbleDeleting = true;
+
+                // 落下速度上昇判定ゾーンとデンジャーゾーンのコライダーオフ
+                fallSpeedZoneCollider.enabled = false;
+                dangerZoneCollider.enabled = false;
+
+                // カウントを0に戻す
+                GameManager.Instance.fallSpeedUpZoneContactCount = 0;
+                GameManager.Instance.dangerZoneContactCount = 0;
+
+                // 泡削除コルーチンを呼ぶ　引数はヒットした泡の座標
                 StartCoroutine(BobbleDeleteCoroutine(x, y));
             }
             else
@@ -265,7 +280,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         }
         else
         {
-            Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
+            //Debug.Log("ヒットした泡の色 : " + bobbles[y][x]);
 
             // ポーズできるようにする
             Pauser.isCanPausing = true;
@@ -275,7 +290,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
 
         if(deleteCount < 3)
         {
-            Debug.Log("泡は3つ以上繋がっていなかった");
+            //Debug.Log("泡は3つ以上繋がっていなかった");
             //Debug.Log(string.Join(", ", workBobbles[y].Select(obj => obj.ToString())));
             //Debug.Log(string.Join(", ", bobbles[y].Select(obj => obj.ToString())));
 
@@ -318,7 +333,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             count++;
             // 削除する泡としてマークする
             bobbles[y][x] = BobbleColor.Delete;
-            Debug.Log("カウント" + count);
+            //Debug.Log("カウント" + count);
 
             // 再帰処理
             // 偶数行か奇数行かでアクセスする泡の位置を変える
@@ -368,7 +383,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
             bobbleGroups[y].DestroyChildBobble(x, false, 0.0334f * ScoreManager.Instance.DeleteCombo);
             bobbles[y][x] = BobbleColor.None;
             
-            Debug.Log("削除！！ Y : " + y + " X : " + x);
+            //Debug.Log("削除！！ Y : " + y + " X : " + x);
 
             // 再帰処理
             // 偶数行か奇数行かでアクセスする泡の位置を変える
@@ -482,7 +497,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
                     bobbleGroups[y].DestroyChildBobble(x, true, 0);
                     bobbles[y][x] = BobbleColor.None;
                     isDeleted = true;
-                    Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
+                    //Debug.Log("浮いてる泡を削除！！ Y : " + y + " X : " + x);
                 }
                 else
                 {
@@ -500,6 +515,7 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         }
     }   
 
+    // 
     private IEnumerator BobbleDeleteCoroutine(int x, int y)
     {
         // 1f待つ
@@ -537,16 +553,24 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         yield return new WaitForSeconds(0.25f + 0.125f);
         yield return new WaitForEndOfFrame();
 
+        // 落下速度上昇判定ゾーンとデンジャーゾーンのコライダーをオンにする
+        fallSpeedZoneCollider.enabled = true;
+        dangerZoneCollider.enabled = true;
+
         // スクリーン座標計算
         Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position);
 
         // 表示するテキスト
-        string scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
+        string scoreText;
 
         // デンジャータイム中なら、ボーナスが適用されたこと伝える文章を追加する
         if (GameManager.Instance.isDangerTime)
         {
-            scoreText = scoreText + " × DangerBonus " + ScoreManager.Instance.DangerTimeScoreBonusRate + " = " + (ScoreManager.Instance.NowTurnPoint * ScoreManager.Instance.DangerTimeScoreBonusRate).ToString("N0") + "!!";
+            scoreText = "+" + (ScoreManager.Instance.NowTurnPoint * ScoreManager.Instance.DangerTimeScoreBonusRate).ToString("N0") + "!! (" + ScoreManager.Instance.NowTurnPoint.ToString("N0") + " × DangerBonus " + ScoreManager.Instance.DangerTimeScoreBonusRate + ")";
+        }
+        else
+        {
+           scoreText = "+" + ScoreManager.Instance.NowTurnPoint.ToString("N0");
         }
 
         // ポイントの合計をスコア表示の下に +〇〇 と表示
@@ -556,9 +580,10 @@ public class BobbleArrayManager : SingletonMonoBehaviour<BobbleArrayManager>
         // 1ショットで稼いだポイントの合計をスコアに加算
         ScoreManager.Instance.AddNowTurnPointToScore();
 
+        // デンジャータイム中ならさらに一拍置いて猶予を与える
         if (GameManager.Instance.isDangerTime)
         {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
         }
 
         // 少し待つ

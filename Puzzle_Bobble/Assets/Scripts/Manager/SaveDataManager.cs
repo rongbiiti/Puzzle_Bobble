@@ -22,7 +22,7 @@ public class SaveDataManager : SingletonMonoBehaviour<SaveDataManager>
         filePath = Application.persistentDataPath + "/" + ".savedata.json";
 
         saveData = new SaveData();
-        Debug.Log(filePath);
+        Debug.Log("セーブデータのファイルパス：" + filePath);
         Load();
     } 
 

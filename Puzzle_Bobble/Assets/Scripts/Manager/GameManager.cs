@@ -55,7 +55,6 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     {
         Instantiate(_gameOverTextPrefab, ScoreManager.Instance.GetCanvas().transform);
         isBobbleFalloutGameOverZone = true;
-        FindObjectOfType<GameOverZone>().enabled = false;
         FindObjectOfType<PauseButton>().gameObject.SetActive(false);
     }
 

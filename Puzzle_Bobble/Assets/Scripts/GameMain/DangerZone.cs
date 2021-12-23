@@ -9,9 +9,7 @@ public class DangerZone : MonoBehaviour
     [SerializeField] private Image _dangerPanel;
 
     private GameManager gm;     // GameManagerのインスタンス
-    private int preContactCount;    // 前のフレームのGameManagerのdangerZoneContactCount
-    private Color startColor;
-    private int contactCount;   // このオブジェクトのトリガー範囲と接触している泡の個数
+    private Color startColor;   // パネルの初期色
 
     void Start()
     {
@@ -35,55 +33,51 @@ public class DangerZone : MonoBehaviour
             return;
         }
 
+        // 削除演出中なら早期リターン
+        if (GameManager.Instance.isBobbleDeleting) return;
+
         // 泡がトリガーに入っていたら、画面を赤く光らせる
         if(0 < gm.dangerZoneContactCount)
         {
+            // パネルの色を赤く点滅させる（透明度を変えている）
             _dangerPanel.color = new Color(startColor.r, startColor.g, startColor.b, Mathf.Sin(Time.time * 7) / 4 + 0.05f);
             GameManager.Instance.isDangerTime = true;
         }
         else
         {
+            // パネルを透明に戻す
             _dangerPanel.color = Color.clear;
-            if(preContactCount != gm.dangerZoneContactCount)
-            {
-                StartCoroutine(nameof(LiftDangerTimeFlagCoroutine));
-            }            
+            StartCoroutine(nameof(LiftDangerTimeFlagCoroutine));
         }
 
-        preContactCount = gm.dangerZoneContactCount;
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Bobble"))
         {
-            //contactCount++;
-            //GameManager.Instance.isDangerTime = true;
-        }
-    }
-
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Bobble"))
-        {
-            //contactCount--;
-        }
-
-        if (contactCount <= 0)
-        {
-            //_dangerPanel.color = Color.clear;
-            //StartCoroutine(nameof(LiftDangerTimeFlagCoroutine));
+            gm.dangerZoneContactCount++;
+            GameManager.Instance.isDangerTime = true;
         }
     }
 
     // 次の玉が撃てるようになってからデンジャータイムフラグを折る
     private IEnumerator LiftDangerTimeFlagCoroutine()
     {
+        // 玉の削除演出中なら処理を止める
         while (GameManager.Instance.isBobbleDeleting)
         {
             yield return new WaitForFixedUpdate();
         }
+
+        // 一拍置く
         yield return new WaitForSeconds(0.5f);
-        GameManager.Instance.isDangerTime = false;
+
+        // デンジャーゾーンに泡が入っていなければ、デンジャータイムフラグを折る
+        if(gm.dangerZoneContactCount <= 0)
+        {
+            GameManager.Instance.isDangerTime = false;
+        }
+        
     }
 }
